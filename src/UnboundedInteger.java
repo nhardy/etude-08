@@ -24,22 +24,22 @@ public class UnboundedInteger {
         this.bits = bits;
     }
 
-    public UnboundedInteger add(UnboundedInteger num1, UnboundedInteger num2) {
+    public UnboundedInteger add(UnboundedInteger other) {
         UnboundedInteger result;
         return result;
     }
 
-    public UnboundedInteger substract(UnboundedInteger num1, UnboundedInteger num2) {
+    public UnboundedInteger substract(UnboundedInteger other) {
         UnboundedInteger result;
         return result;
     }
 
-    public UnboundedInteger multiply(UnboundedInteger num1, UnboundedInteger num2) {
+    public UnboundedInteger multiply(UnboundedInteger other) {
         UnboundedInteger result;
         return result;
     }
 
-    public UnboundedInteger divide(UnboundedInteger num1, UnboundedInteger num2) {
+    public UnboundedInteger divide(UnboundedInteger other) {
         UnboundedInteger result;
         return result;
     }
@@ -56,7 +56,7 @@ public class UnboundedInteger {
                 System.out.println(line);
                 continue;
             }
-            String[] numbers = line.split("\\2+");
+            String[] numbers = line.split("\\s+");
             if(numbers.length < 3) {
                 System.out.println("# Syntax error");
                 continue;
