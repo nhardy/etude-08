@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.regex.*;
@@ -8,7 +10,7 @@ import java.util.regex.*;
  */
 public class UnboundedInteger {
     private boolean isNegative = false;
-    private LinkedList<Boolean> bits = new LinkedList<Boolean>();
+    private LinkedList<Integer> data = new LinkedList<Integer>();
     private final Pattern stringPattern = Pattern.compile("^(-?)(\\d+)$");
     public UnboundedInteger(String input) {
         Matcher m = stringPattern.matcher(input);
@@ -16,12 +18,23 @@ public class UnboundedInteger {
         if (!m.find()) throw new IllegalArgumentException("String: ''" + input + "'' does not match the pattern for UnboundedInteger.");
 
         isNegative = m.group(1).length() == 1;
-        String digits = m.group(2);
+
+        ArrayList<Character> digits = new ArrayList<Character>();
+        for (char digit : m.group(2).toCharArray()) {
+            digits.add(digit);
+        }
+        Collections.reverse(digits);
+
+        int place = 1;
+        for (char digit : digits) {
+            int part = Integer.parseInt("" + digit);
+            place++;
+        }
     }
 
-    public UnboundedInteger(boolean isNegative, LinkedList<Boolean> bits) {
+    public UnboundedInteger(boolean isNegative, LinkedList<Integer> data) {
         this.isNegative = isNegative;
-        this.bits = bits;
+        this.data = data;
     }
 
     public UnboundedInteger add(UnboundedInteger other) {
