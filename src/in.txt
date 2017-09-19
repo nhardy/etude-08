@@ -1,0 +1,10 @@
+# Some difficult maths
+1 + 1
+2 * 2
+5 / 2
+# Random comment
+10000000000001 * 1234567890123
+6 < 3
+4 = 4
+1 + 2 * 3
+# The end
