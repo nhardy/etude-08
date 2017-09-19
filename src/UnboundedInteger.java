@@ -70,7 +70,15 @@ public class UnboundedInteger {
         } else if (sign == other.sign) {
             return new UnboundedInteger(sign, add(magnitude, other.magnitude));
         } else {
-            
+            List<Integer> newMagnitude = new LinkedList<Integer>();
+            int cmp = compareMagnitude(magnitude, other.magnitude);
+            if (cmp == 0) {
+
+            } else if (cmp > 0) {
+                magnitude.subtract(other.magnitude);
+            } else {
+                other.magnitude.subtract(magnitude);
+            }
         }
         return new UnboundedInteger(sign, newMagnitude);
     }
