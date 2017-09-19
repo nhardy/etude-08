@@ -31,6 +31,16 @@ public class UnboundedInteger {
         this.magnitude = magnitude;
     }
 
+    private int compareMagnitude(UnboundedInteger other) {
+        if (magnitude.size() > other.magnitude.size()) return 1;
+        if (magnitude.size() < other.magnitude.size()) return -1;
+        for (int i = magnitude.size() - 1; i >= 0; i--) {
+            if (magnitude.get(i) > other.magnitude.get(i)) return 1;
+            if (magnitude.get(i) < other.magnitude.get(i)) return -1;
+        }
+        return 0;
+    }
+
     public UnboundedInteger add(UnboundedInteger other) {
         int newSign = 1;
         List<Integer> newMagnitude = new LinkedList<Integer>();
@@ -70,25 +80,13 @@ public class UnboundedInteger {
     public boolean greaterThan(UnboundedInteger other) {
         if (sign > other.sign) return true;
         if (sign < other.sign) return false;
-        if (magnitude.size() > other.magnitude.size()) return true;
-        if (magnitude.size() < other.magnitude.size()) return false;
-        for (int i = magnitude.size() - 1; i >= 0; i--) {
-            if (magnitude.get(i) > other.magnitude.get(i)) return true;
-            if (magnitude.get(i) < other.magnitude.get(i)) return false;
-        }
-        return false;
+        return compareMagnitude(other) > 0;
     }
 
     public boolean lessThan(UnboundedInteger other) {
         if (sign < other.sign) return true;
         if (sign > other.sign) return false;
-        if (magnitude.size() < other.magnitude.size()) return true;
-        if (magnitude.size() > other.magnitude.size()) return false;
-        for (int i = magnitude.size() - 1; i >= 0; i--) {
-            if (magnitude.get(i) < other.magnitude.get(i)) return true;
-            if (magnitude.get(i) > other.magnitude.get(i)) return false;
-        }
-        return false;
+        return compareMagnitude(other) < 0;
     }
 
     public boolean equals(UnboundedInteger other) {
