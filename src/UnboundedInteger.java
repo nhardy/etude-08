@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.lang.Math;
+import java.util.List;
 
 /**
  * UnboundedInteger class
@@ -8,7 +9,7 @@ import java.lang.Math;
  */
 public class UnboundedInteger {
     private int sign;
-    private LinkedList<Integer> magnitude = new LinkedList<Integer>();
+    private List<Integer> magnitude = new LinkedList<Integer>();
 
     public UnboundedInteger(String number) {
         int negIndex = number.lastIndexOf('-');
@@ -25,29 +26,52 @@ public class UnboundedInteger {
         }
     }
 
-    public UnboundedInteger(int sign, LinkedList<Integer> magnitude) {
+    public UnboundedInteger(int sign, List<Integer> magnitude) {
         this.sign = sign;
         this.magnitude = magnitude;
     }
 
-    public UnboundedInteger add(UnboundedInteger other) {
-        int newSign = 1;
-        LinkedList<Integer> newMagnitude = new LinkedList<Integer>();
+    private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
+        List<Integer> newMagnitude = new LinkedList<Integer>();
         int position = 0;
-        int max = Math.max(magnitude.size(), other.magnitude.size());
+        int max = Math.max(magnitude1.size(), magnitude2.size());
         int carry = 0;
         while (position < max || carry > 0) {
-            int initialDigit = magnitude.get(position);
-            int otherDigit = other.magnitude.get(position);
-            int add = initialDigit + otherDigit;
+            int initialDigit;
+            int otherDigit;
+            if (position >= magnitude1.size()) {
+                initialDigit = 0;
+            } else {
+                initialDigit = magnitude1.get(position);
+            }
+            if (position >= magnitude2.size()) {
+                otherDigit = 0;
+            } else {
+                otherDigit = magnitude2.get(position);
+            }
+            int add = initialDigit + otherDigit + carry;
+            carry = 0;
             if (add > 9) {
                 carry = 1;
                 add = add % 10;
             }
-            newMagnitude.set(position, add);
+            newMagnitude.add(add);
+            position += 1;
         }
+        return newMagnitude;
+    }
 
-        return new UnboundedInteger(newSign, newMagnitude);
+    public UnboundedInteger add(UnboundedInteger other) {
+        if (sign == 0) {
+            return other;
+        } else if (other.sign == 0) {
+            return this;
+        } else if (sign == other.sign) {
+            return new UnboundedInteger(sign, add(magnitude, other.magnitude));
+        } else {
+            
+        }
+        return new UnboundedInteger(sign, newMagnitude);
     }
 
     public UnboundedInteger subtract(UnboundedInteger other) {
@@ -99,7 +123,7 @@ public class UnboundedInteger {
                 continue;
             }
             String[] numbers = line.split("\\s+");
-            if(numbers.length < 3) {
+            if(numbers.length != 3) {
                 System.out.println("# Syntax error");
                 continue;
             }
