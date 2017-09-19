@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.lang.Math;
 
 /**
  * UnboundedInteger class
@@ -28,7 +29,23 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger add(UnboundedInteger other) {
-        return new UnboundedInteger("0");
+        int newSign = 1;
+        LinkedList<Integer> newMagnitude = new LinkedList<Integer>();
+        int position = 0;
+        int max = Math.max(magnitude.size(), other.magnitude.size());
+        int carry = 0;
+        while (position < max || carry > 0) {
+            int initialDigit = magnitude.get(position);
+            int otherDigit = other.magnitude.get(position);
+            int add = initialDigit + otherDigit;
+            if (add > 9) {
+                carry = 1;
+                add = add % 10;
+            }
+            newMagnitude.set(position, add);
+        }
+
+        return new UnboundedInteger(newSign, newMagnitude);
     }
 
     public UnboundedInteger subtract(UnboundedInteger other) {
