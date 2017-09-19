@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -19,6 +17,10 @@ public class UnboundedInteger {
             sign = 0;
             magnitude.add(0);
             return;
+        }
+
+        for (int i = number.length() - 1; i > negIndex; i--) {
+            magnitude.add(Integer.parseInt(number.substring(i, i + 1)));
         }
     }
 
@@ -60,7 +62,15 @@ public class UnboundedInteger {
     }
 
     public String toString() {
-        return "";
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int digit : magnitude) {
+            stringBuilder.insert(0, Integer.toString(digit));
+        }
+
+        if (sign == -1) stringBuilder.insert(0, "-");
+
+        return stringBuilder.toString();
     }
 
     public static void main(String[] args) {
