@@ -2,79 +2,61 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.regex.*;
 
 /**
  * UnboundedInteger class
  * @author Kimberley Louw, Nathan Hardy
  */
 public class UnboundedInteger {
-    private boolean isNegative = false;
-    private LinkedList<Integer> data = new LinkedList<Integer>();
-    private final Pattern stringPattern = Pattern.compile("^(-?)(\\d+)$");
-    public UnboundedInteger(String input) {
-        Matcher m = stringPattern.matcher(input);
+    private int sign;
+    private LinkedList<Integer> magnitude = new LinkedList<Integer>();
 
-        if (!m.find()) throw new IllegalArgumentException("String: ''" + input + "'' does not match the pattern for UnboundedInteger.");
+    public UnboundedInteger(String number) {
+        int negIndex = number.lastIndexOf('-');
+        sign = negIndex == 0 ? -1 : 1;
 
-        isNegative = m.group(1).length() == 1;
-
-        ArrayList<Character> digits = new ArrayList<Character>();
-        for (char digit : m.group(2).toCharArray()) {
-            digits.add(digit);
-        }
-        Collections.reverse(digits);
-
-        int place = 1;
-        for (char digit : digits) {
-            int part = Integer.parseInt("" + digit);
-            place++;
+        if (number.charAt(negIndex + 1) == '0') {
+            sign = 0;
+            magnitude.add(0);
+            return;
         }
     }
 
-    public UnboundedInteger(boolean isNegative, LinkedList<Integer> data) {
-        this.isNegative = isNegative;
-        this.data = data;
+    public UnboundedInteger(int sign, LinkedList<Integer> magnitude) {
+        this.sign = sign;
+        this.magnitude = magnitude;
     }
 
     public UnboundedInteger add(UnboundedInteger other) {
-        UnboundedInteger result;
-        return result;
+        return new UnboundedInteger("0");
     }
 
-    public UnboundedInteger substract(UnboundedInteger other) {
-        UnboundedInteger result;
-        return result;
+    public UnboundedInteger subtract(UnboundedInteger other) {
+        return new UnboundedInteger("0");
     }
 
     public UnboundedInteger multiply(UnboundedInteger other) {
-        UnboundedInteger result;
-        return result;
+        return new UnboundedInteger("0");
     }
 
     public UnboundedInteger divide(UnboundedInteger other) {
-        UnboundedInteger result;
-        return result;
+        return new UnboundedInteger("0");
     }
 
     public UnboundedInteger gcd(UnboundedInteger other) {
-        UnboundedInteger result;
-        return result;
+        return new UnboundedInteger("0");
     }
 
     public boolean greaterThan(UnboundedInteger other) {
-        boolean result;
-        return result;
+        return false;
     }
 
     public boolean lessThan(UnboundedInteger other) {
-        boolean result;
-        return result;
+        return false;
     }
 
     public boolean equals(UnboundedInteger other) {
-        boolean result;
-        return result;
+        return false;
     }
 
     public String toString() {
@@ -94,42 +76,42 @@ public class UnboundedInteger {
                 System.out.println("# Syntax error");
                 continue;
             }
-            String num1 = numbers[0];
+            UnboundedInteger num1 = new UnboundedInteger(numbers[0]);
             String operand = numbers[1];
-            String num2 = numbers[2];
-            String result;
+            UnboundedInteger num2 = new UnboundedInteger(numbers[2]);
+            String result = "";
             switch(operand) {
                 case "+":
-                    result = num1.add(num2); 
+                    result = num1.add(num2).toString();
                     break;
                 case "-":
-                    result = num1.subtract(num2);
+                    result = num1.subtract(num2).toString();
                     break;
                 case "*":
-                    result = num1.multiply(num2);
+                    result = num1.multiply(num2).toString();
                     break;
                 case "/":
-                    result = num1.divide(num2);
+                    result = num1.divide(num2).toString();
                     break;
                 case "gcd":
-                    result = num1.gcd(num2);
+                    result = num1.gcd(num2).toString();
                     break;
                 case ">":
-                    result = num1.greaterThan(num2);
+                    result = "" + num1.greaterThan(num2);
                     break;
                 case "<":
-                    result = num1.lessThan(num2);
+                    result = "" + num1.lessThan(num2);
                     break;
                 case "=":
-                    result = num1.equals(num2);
+                    result = "" + num1.equals(num2);
                     break;
                 default:
                     System.out.println("# Syntax error");
             }
-            if(result != "") {
+            if (!result.equals("")) {
                 System.out.println("# " + result);
             }
         }
         scanner.close();
-     }
+    }
 }
