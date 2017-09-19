@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.lang.Math;
 import java.util.List;
@@ -91,15 +92,31 @@ public class UnboundedInteger {
     }
 
     public boolean greaterThan(UnboundedInteger other) {
+        if (sign > other.sign) return true;
+        if (sign < other.sign) return false;
+        if (magnitude.size() > other.magnitude.size()) return true;
+        if (magnitude.size() < other.magnitude.size()) return false;
+        for (int i = magnitude.size() - 1; i >= 0; i--) {
+            if (magnitude.get(i) > other.magnitude.get(i)) return true;
+            if (magnitude.get(i) < other.magnitude.get(i)) return false;
+        }
         return false;
     }
 
     public boolean lessThan(UnboundedInteger other) {
+        if (sign < other.sign) return true;
+        if (sign > other.sign) return false;
+        if (magnitude.size() < other.magnitude.size()) return true;
+        if (magnitude.size() > other.magnitude.size()) return false;
+        for (int i = magnitude.size() - 1; i >= 0; i--) {
+            if (magnitude.get(i) < other.magnitude.get(i)) return true;
+            if (magnitude.get(i) > other.magnitude.get(i)) return false;
+        }
         return false;
     }
 
     public boolean equals(UnboundedInteger other) {
-        return false;
+        return sign == other.sign && magnitude.equals(other.magnitude);
     }
 
     public String toString() {
@@ -160,6 +177,7 @@ public class UnboundedInteger {
                     System.out.println("# Syntax error");
             }
             if (!result.equals("")) {
+                System.out.println(line);
                 System.out.println("# " + result);
             }
         }
