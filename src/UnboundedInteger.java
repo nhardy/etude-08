@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.lang.Math;
 
@@ -8,7 +9,7 @@ import java.lang.Math;
  */
 public class UnboundedInteger {
     private int sign;
-    private LinkedList<Integer> magnitude = new LinkedList<Integer>();
+    private List<Integer> magnitude = new LinkedList<Integer>();
 
     public UnboundedInteger(String number) {
         int negIndex = number.lastIndexOf('-');
@@ -25,14 +26,14 @@ public class UnboundedInteger {
         }
     }
 
-    public UnboundedInteger(int sign, LinkedList<Integer> magnitude) {
+    public UnboundedInteger(int sign, List<Integer> magnitude) {
         this.sign = sign;
         this.magnitude = magnitude;
     }
 
     public UnboundedInteger add(UnboundedInteger other) {
         int newSign = 1;
-        LinkedList<Integer> newMagnitude = new LinkedList<Integer>();
+        List<Integer> newMagnitude = new LinkedList<Integer>();
         int position = 0;
         int max = Math.max(magnitude.size(), other.magnitude.size());
         int carry = 0;
