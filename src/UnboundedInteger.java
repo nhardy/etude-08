@@ -8,6 +8,8 @@ import java.lang.Math;
  * @author Kimberley Louw, Nathan Hardy
  */
 public class UnboundedInteger {
+    private static UnboundedInteger ZERO = new UnboundedInteger("0");
+    private static UnboundedInteger ONE = new UnboundedInteger("1");
     private int sign;
     private List<Integer> magnitude = new LinkedList<Integer>();
 
@@ -39,6 +41,12 @@ public class UnboundedInteger {
             if (magnitude.get(i) < other.magnitude.get(i)) return -1;
         }
         return 0;
+    }
+
+    public UnboundedInteger truncatedHalf(UnboundedInteger other) {
+        UnboundedInteger half = new UnboundedInteger("0");
+        half = divide(other);
+        return half;
     }
 
     private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
@@ -109,7 +117,7 @@ public class UnboundedInteger {
                 otherDigit = 0;
             } else {
                 otherDigit = magnitude2.get(position);
-            }
+            }            
             int subtract;
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
@@ -154,45 +162,60 @@ public class UnboundedInteger {
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
-    // TODO: multiply, divide and GCD must be extentions to other methods not accessing data type directly
-
-    private static List<Integer> multiply(List<Integer> magnitude1, List<Integer> magnitude2) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
-        // TODO: Multiply method
-        return newMagnitude;
-    }
-
     public UnboundedInteger multiply(UnboundedInteger other) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
-        if (sign == 0 || other.sign == 0) {
-            newMagnitude.add(0);
-            return new UnboundedInteger(0, newMagnitude);
-        } else if (sign == other.sign) {
-            return new UnboundedInteger(1, multiply(magnitude, other.magnitude));
-        } else {
-            return new UnboundedInteger(-1, multiply(magnitude, other.magnitude));
+        if (equals(ZERO) || other.equals(ZERO)) {
+            return ZERO;
+        } else if (greaterThan(ZERO) && other.greaterThan(ZERO)) {
+            UnboundedInteger count = other;
+            UnboundedInteger result = new UnboundedInteger(sign, magnitude);
+            while (count.greaterThan(ONE)) {
+                result = result.add(this);
+                count = count.subtract(ONE);
+            }
+            return result;
         }
-    }
-
-    private static List<Integer> divide(List<Integer> magnitude1, List<Integer> magnitude2) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
-        // TODO: Divide method
-        return newMagnitude;
+        // } else if (lessThan(ZERO) && other.lessThan(ZERO)) {
+        //     UnboundedInteger count = new UnboundedInteger(1, other.magnitude);
+        //     List<Integer> resultMag = new LinkedList<Integer>();
+        //     resultMag = magnitude;
+        //     while (count.greaterThan(ONE)) {
+        //         resultMag = add(resultMag, other.magnitude);
+        //         count = count.subtract(ONE);
+        //     }
+        //     UnboundedInteger result = new UnboundedInteger(1, resultMag);
+        //     return result;
+        // } else {
+        //     UnboundedInteger count = other;
+        //     List<Integer> resultMag = new LinkedList<Integer>();
+        //     resultMag = other.magnitude;
+        //     while (count.greaterThan(ONE)) {
+        //         resultMag = add(magnitude, other.magnitude);
+        //         count = count.subtract(ONE);
+        //     }
+        //     UnboundedInteger result = new UnboundedInteger(-1, resultMag);
+        //     return result;
+        // }
+        return ZERO;
     }
 
     public UnboundedInteger divide(UnboundedInteger other) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
-        if (sign == 0) {
-            newMagnitude.add(0);
-            return new UnboundedInteger(0, newMagnitude);
-        } else if (other.sign == 0) { // TODO: return error for divide by 0
-            newMagnitude.add(0);
-            return new UnboundedInteger(0, newMagnitude);
-        } else if (sign == other.sign) {
-            return new UnboundedInteger(1, divide(magnitude, other.magnitude));
-        } else {
-            return new UnboundedInteger(-1, divide(magnitude, other.magnitude));
+        if (equals(ZERO) || other.equals(ZERO)) {
+            return ZERO;
+        } else if (greaterThan(ZERO) && other.greaterThan(ZERO)) {
+            UnboundedInteger count = ZERO;
+            UnboundedInteger remainder = ZERO;
+            UnboundedInteger result = new UnboundedInteger(sign, magnitude);
+            while (result.greaterThan(ZERO)) {
+                result = result.subtract(other);
+                if (result.lessThan(ZERO)) {
+                    remainder = result;
+                    System.out.println(remainder);
+                }
+                count = count.add(ONE);
+            }
+            return count;
         }
+        return ZERO;
     }
 
     public UnboundedInteger gcd(UnboundedInteger other) {
