@@ -175,18 +175,22 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger multiply(UnboundedInteger other) {
-        if (equals(ZERO) || other.equals(ZERO)) {
-            return ZERO;
-        } else if (greaterThan(ZERO) && other.greaterThan(ZERO)) {
-            UnboundedInteger count = other;
-            UnboundedInteger result = new UnboundedInteger(sign, magnitude);
-            while (count.greaterThan(ONE)) {
-                result = result.add(this);
-                count = count.subtract(ONE);
-            }
-            return result;
+        if (equals(ZERO) || other.equals(ZERO)) return ZERO;
+
+        int sign = sign(this) * sign(other);
+        UnboundedInteger absThis = abs(this);
+        UnboundedInteger absOther = abs(other);
+
+        boolean thisGtOther = absThis.greaterThan(absOther);
+        UnboundedInteger absResult = ZERO;
+
+        for (UnboundedInteger i = ZERO; i.lessThan(thisGtOther ? absOther : absThis); i = i.add(ONE)) {
+            absResult = absResult.add(thisGtOther ? absThis : absOther);
         }
-        return ZERO;
+
+        if (sign == 1) return absResult;
+
+        return ZERO.subtract(absResult);
     }
 
     public QuotientAndRemainder divide(UnboundedInteger other) {
