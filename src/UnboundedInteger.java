@@ -153,7 +153,7 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger subtract(UnboundedInteger other) {
-        if (sign == 0) {
+        if (sign == 0 && other.sign != -1) {
             return new UnboundedInteger(-1, other.magnitude);
         } else if (other.sign == 0) {
             return new UnboundedInteger(1, magnitude);
@@ -205,10 +205,14 @@ public class UnboundedInteger {
         UnboundedInteger remainder = ZERO;
 
         while (num1.greaterThan(ZERO)) {
-            num1 = num1.subtract(num2);
-            if (num1.lessThan(ZERO)) {
+            if (num1.subtract(num2).lessThan(ZERO)) {
                 remainder = num1.subtract(ZERO);
+                if (remainder.lessThan(ZERO)) {
+                    remainder = ZERO;
+                }
+                num1 = num1.subtract(num2);
             } else {
+                num1 = num1.subtract(num2);
                 count = count.add(ONE);
             }
         }
@@ -264,6 +268,7 @@ public class UnboundedInteger {
             }
             String[] numbers = line.split("\\s+");
             if(numbers.length != 3) {
+                System.out.println(line);
                 System.out.println("# Syntax error");
                 continue;
             }
@@ -298,6 +303,7 @@ public class UnboundedInteger {
                     result = "" + num1.equals(num2);
                     break;
                 default:
+                    System.out.println(line);
                     System.out.println("# Syntax error");
             }
             if (!result.equals("")) {
