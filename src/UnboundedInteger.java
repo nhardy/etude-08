@@ -231,6 +231,7 @@ public class UnboundedInteger {
 
         UnboundedInteger remainder = ZERO;
         do {
+            System.out.println("GCD Divide " + higher + " by " + lower);
             QuotientAndRemainder qr = higher.divide(lower);
             remainder = qr.getRemainder();
             higher = lower;
@@ -323,21 +324,20 @@ public class UnboundedInteger {
     }
 
     private class QuotientAndRemainder {
-
         private UnboundedInteger quotient;
         private UnboundedInteger remainder;
 
-        public QuotientAndRemainder (UnboundedInteger quotient, UnboundedInteger remainder) {
+        public QuotientAndRemainder(UnboundedInteger quotient, UnboundedInteger remainder) {
             this.quotient = quotient;
             this.remainder = remainder;
         }
 
         public UnboundedInteger getQuotient() {
-            return this.quotient;
+            return quotient;
         }
 
         public UnboundedInteger getRemainder() {
-            return this.remainder;
+            return remainder;
         }
     }
 }
