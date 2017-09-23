@@ -55,8 +55,8 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger truncatedHalf(UnboundedInteger other) {
-        UnboundedInteger half = new UnboundedInteger("0");
-        half = divide(other);
+        UnboundedInteger half = ZERO;
+        // half = divide(other);
         return half;
     }
 
@@ -193,24 +193,33 @@ public class UnboundedInteger {
         return ZERO.subtract(absResult);
     }
 
-    public UnboundedInteger divide(UnboundedInteger other) {
-        if (equals(ZERO) || other.equals(ZERO)) {
-            return ZERO;
-        } else if (greaterThan(ZERO) && other.greaterThan(ZERO)) {
-            UnboundedInteger count = ZERO;
-            UnboundedInteger remainder = ZERO;
-            UnboundedInteger result = new UnboundedInteger(sign, magnitude);
-            while (result.greaterThan(ZERO)) {
-                result = result.subtract(other);
-                if (result.lessThan(ZERO)) {
-                    remainder = result;
-                    System.out.println(remainder);
-                }
+    public QuotientAndRemainder divide(UnboundedInteger other) {
+        if (other.equals(ZERO)) throw new ArithmeticException("Divide by zero");
+        QuotientAndRemainder zero = new QuotientAndRemainder(ZERO, ZERO);
+        if (equals(ZERO)) return zero;
+
+        int sign = sign(this) * sign(other);
+        UnboundedInteger num1 = abs(this);
+        UnboundedInteger num2 = abs(other);
+        UnboundedInteger count = ZERO;
+        UnboundedInteger remainder = ZERO;
+
+        while (num1.greaterThan(ZERO)) {
+            num1 = num1.subtract(num2);
+            if (num1.lessThan(ZERO)) {
+                remainder = num1.subtract(ZERO);
+            } else {
                 count = count.add(ONE);
             }
-            return count;
         }
-        return ZERO;
+
+        if (sign != 1) {
+            count = ZERO.subtract(count);
+        }
+
+        QuotientAndRemainder result = new QuotientAndRemainder(count, remainder);
+
+        return result;
     }
 
     public UnboundedInteger gcd(UnboundedInteger other) {
@@ -221,12 +230,12 @@ public class UnboundedInteger {
         UnboundedInteger lower = thisGtOther ? other : this;
 
         UnboundedInteger remainder = ZERO;
-        // do {
-        //     QuotientAndRemainder qr = higher.divide(lower);
-        //     remainder = qr.getRemainder();
-        //     higher = lower;
-        //     lower = qr.getQuotient();
-        // } while (!remainder.equals(ZERO));
+        do {
+            QuotientAndRemainder qr = higher.divide(lower);
+            remainder = qr.getRemainder();
+            higher = lower;
+            lower = qr.getQuotient();
+        } while (!remainder.equals(ZERO));
 
         return lower;
     }
@@ -287,7 +296,8 @@ public class UnboundedInteger {
                     result = num1.multiply(num2).toString();
                     break;
                 case "/":
-                    result = num1.divide(num2).toString();
+                    QuotientAndRemainder tmp = num1.divide(num2);
+                    result = tmp.getQuotient() + " r " + tmp.getRemainder();
                     break;
                 case "gcd":
                     result = num1.gcd(num2).toString();
@@ -310,5 +320,24 @@ public class UnboundedInteger {
             }
         }
         scanner.close();
+    }
+
+    private class QuotientAndRemainder {
+
+        private UnboundedInteger quotient;
+        private UnboundedInteger remainder;
+
+        public QuotientAndRemainder (UnboundedInteger quotient, UnboundedInteger remainder) {
+            this.quotient = quotient;
+            this.remainder = remainder;
+        }
+
+        public UnboundedInteger getQuotient() {
+            return this.quotient;
+        }
+
+        public UnboundedInteger getRemainder() {
+            return this.remainder;
+        }
     }
 }
