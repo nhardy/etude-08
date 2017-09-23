@@ -43,6 +43,17 @@ public class UnboundedInteger {
         return 0;
     }
 
+    private static UnboundedInteger abs(UnboundedInteger number) {
+        if (number.equals(ZERO) || number.greaterThan(ZERO)) return number;
+        return ZERO.subtract(number);
+    }
+
+    private static int sign(UnboundedInteger number) {
+        if (number.equals(ZERO)) return 0;
+        if (number.greaterThan(ZERO)) return 1;
+        return -1;
+    }
+
     public UnboundedInteger truncatedHalf(UnboundedInteger other) {
         UnboundedInteger half = new UnboundedInteger("0");
         half = divide(other);
@@ -117,7 +128,7 @@ public class UnboundedInteger {
                 otherDigit = 0;
             } else {
                 otherDigit = magnitude2.get(position);
-            }            
+            }
             int subtract;
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
@@ -147,6 +158,7 @@ public class UnboundedInteger {
         } else if (other.sign == 0) {
             return new UnboundedInteger(1, magnitude);
         } else if (sign != other.sign) {
+            // TODO: Check if this works as intended if other.sign is negative
             return new UnboundedInteger(sign, add(magnitude, other.magnitude));
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
