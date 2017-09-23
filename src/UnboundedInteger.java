@@ -175,39 +175,22 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger multiply(UnboundedInteger other) {
-        if (equals(ZERO) || other.equals(ZERO)) {
-            return ZERO;
-        } else if (greaterThan(ZERO) && other.greaterThan(ZERO)) {
-            UnboundedInteger count = other;
-            UnboundedInteger result = new UnboundedInteger(sign, magnitude);
-            while (count.greaterThan(ONE)) {
-                result = result.add(this);
-                count = count.subtract(ONE);
-            }
-            return result;
+        if (equals(ZERO) || other.equals(ZERO)) return ZERO;
+
+        int sign = sign(this) * sign(other);
+        UnboundedInteger absThis = abs(this);
+        UnboundedInteger absOther = abs(other);
+
+        boolean thisGtOther = absThis.greaterThan(absOther);
+        UnboundedInteger absResult = ZERO;
+
+        for (UnboundedInteger i = ZERO; i.lessThan(thisGtOther ? absOther : absThis); i = i.add(ONE)) {
+            absResult = absResult.add(thisGtOther ? absThis : absOther);
         }
-        // } else if (lessThan(ZERO) && other.lessThan(ZERO)) {
-        //     UnboundedInteger count = new UnboundedInteger(1, other.magnitude);
-        //     List<Integer> resultMag = new LinkedList<Integer>();
-        //     resultMag = magnitude;
-        //     while (count.greaterThan(ONE)) {
-        //         resultMag = add(resultMag, other.magnitude);
-        //         count = count.subtract(ONE);
-        //     }
-        //     UnboundedInteger result = new UnboundedInteger(1, resultMag);
-        //     return result;
-        // } else {
-        //     UnboundedInteger count = other;
-        //     List<Integer> resultMag = new LinkedList<Integer>();
-        //     resultMag = other.magnitude;
-        //     while (count.greaterThan(ONE)) {
-        //         resultMag = add(magnitude, other.magnitude);
-        //         count = count.subtract(ONE);
-        //     }
-        //     UnboundedInteger result = new UnboundedInteger(-1, resultMag);
-        //     return result;
-        // }
-        return ZERO;
+
+        if (sign == 1) return absResult;
+
+        return ZERO.subtract(absResult);
     }
 
     public UnboundedInteger divide(UnboundedInteger other) {
