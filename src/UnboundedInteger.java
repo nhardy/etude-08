@@ -214,7 +214,21 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger gcd(UnboundedInteger other) {
-        return new UnboundedInteger("0");
+        if (equals(other)) return this;
+
+        boolean thisGtOther = this.greaterThan(other);
+        UnboundedInteger higher = thisGtOther ? this : other;
+        UnboundedInteger lower = thisGtOther ? other : this;
+
+        UnboundedInteger remainder = ZERO;
+        // do {
+        //     QuotientAndRemainder qr = higher.divide(lower);
+        //     remainder = qr.getRemainder();
+        //     higher = lower;
+        //     lower = qr.getQuotient();
+        // } while (!remainder.equals(ZERO));
+
+        return lower;
     }
 
     public boolean greaterThan(UnboundedInteger other) {
