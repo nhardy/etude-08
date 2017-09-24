@@ -197,6 +197,9 @@ public class UnboundedInteger {
         UnboundedInteger lesser = thisGtOther ? absOther : absThis;
         UnboundedInteger absResult = ZERO;
 
+        // We aren't allowed to access the underlying magnitude ArrayList
+        // for this method, so we convert the number to a string and
+        // operate on each digit accordingly.
         char[] lesserDigitChars = lesser.toString().toCharArray();
         ArrayList<Character> lesserDigits = new ArrayList<Character>();
         for (int i = lesserDigitChars.length - 1; i >= 0; i--) {
@@ -209,9 +212,13 @@ public class UnboundedInteger {
             for (int j = 0; j < digitAtPlace; j++) {
                 partialSum = partialSum.add(greater);
             }
+
+            // Shift result by 10^i
             for (int j = 0; j < i; j++) {
                 partialSum = partialSum.multiplyBy10();
             }
+
+            // Add
             absResult = absResult.add(partialSum);
         }
 
