@@ -136,6 +136,11 @@ public class UnboundedInteger {
         return newMagnitude;
     }
 
+    /**
+     * Returns a new UnboundedInteger, with the {@code other} added to {@code this}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger add(UnboundedInteger other) {
         if (sign == 0) return new UnboundedInteger(1, other.magnitude);
         if (other.sign == 0) return new UnboundedInteger(1, magnitude);
@@ -198,6 +203,11 @@ public class UnboundedInteger {
         return newMagnitude;
     }
 
+    /**
+     * Returns a new UnboundedInteger, with the {@code other} subtracted from {@code this}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger subtract(UnboundedInteger other) {
         if (sign == 0 && other.sign == 1) {
             return new UnboundedInteger(-1, other.magnitude);
@@ -210,20 +220,24 @@ public class UnboundedInteger {
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
         int cmp = compareMagnitude(other);
-        System.out.println("cmp: " + cmp);
+        log("cmp: " + cmp);
         if (cmp == 0) {
             newMagnitude.add(0);
             return new UnboundedInteger(0, newMagnitude);
         } else if (cmp > 0) {
-            System.out.println("mag: " + magnitude + " otherMag: " + other.magnitude);
+            log("mag: " + magnitude + " otherMag: " + other.magnitude);
             newMagnitude = subtract(magnitude, other.magnitude);
-            System.out.println("newMag: " + newMagnitude);
+            log("newMag: " + newMagnitude);
         } else {
             newMagnitude = subtract(other.magnitude, magnitude);
         }
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
+    /**
+     * Returns the current UnboundedInteger multiplied by 10. Used for place-value shifting.
+     * @return Result
+     */
     private UnboundedInteger multiplyBy10() {
         UnboundedInteger result = ZERO;
         for (int i = 0; i < 10; i++) {
@@ -232,6 +246,11 @@ public class UnboundedInteger {
         return result;
     }
 
+    /**
+     * Returns a new UnboundedInteger which is the result of {@code this} multiplied by {@code other}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger multiply(UnboundedInteger other) {
         if (equals(ZERO) || other.equals(ZERO)) return ZERO;
 
@@ -274,6 +293,11 @@ public class UnboundedInteger {
         return ZERO.subtract(absResult);
     }
 
+    /**
+     * Returns the quotient and remainder for {@code this} divided by {@code other}.
+     * @param other Other UnboundedInteger
+     * @return QuotientAndRemainder object containing the quotient and remainder
+     */
     public QuotientAndRemainder divide(UnboundedInteger other) {
         if (other.equals(ZERO)) throw new ArithmeticException("Divide by zero");
         QuotientAndRemainder zero = new QuotientAndRemainder(ZERO, ZERO);
@@ -285,17 +309,17 @@ public class UnboundedInteger {
         UnboundedInteger count = ZERO;
         UnboundedInteger remainder = ZERO;
         UnboundedInteger tmp = ZERO;
-        System.out.println("sign: " + sign);
-        System.out.println("num1: " + num1);
-        System.out.println("num2: " + num2);
+        log("sign: " + sign);
+        log("num1: " + num1);
+        log("num2: " + num2);
 
         while (num1.greaterThan(ZERO)) {
-            System.out.println("num1: " + num1 + " - num2: " + num2);
+            log("num1: " + num1 + " - num2: " + num2);
             tmp = num1.subtract(num2);
-            System.out.println("= tmp: " + tmp);
+            log("= tmp: " + tmp);
             if (tmp.lessThan(ZERO)) {
                 remainder = num1.subtract(ZERO);
-                System.out.println("remainder: " + remainder);
+                log("remainder: " + remainder);
                 if (remainder.lessThan(ZERO)) {
                     remainder = ZERO;
                 }
@@ -303,8 +327,8 @@ public class UnboundedInteger {
             } else {
                 num1 = tmp;
                 count = count.add(ONE);
-                System.out.println("num1 in loop: " + num1);
-                System.out.println("count: " + count);
+                log("num1 in loop: " + num1);
+                log("count: " + count);
             }
         }
 
@@ -317,6 +341,11 @@ public class UnboundedInteger {
         return result;
     }
 
+    /**
+     * Returns the greatest common divisor of {@code this} and {@code other}. Uses Euclid's algorithm.
+     * @param other Other UnboundedInteger
+     * @return Greatest Common Divisor
+     */
     public UnboundedInteger gcd(UnboundedInteger other) {
         if (equals(other)) return this;
 
@@ -327,13 +356,16 @@ public class UnboundedInteger {
 
         do {
             QuotientAndRemainder qr = higher.divide(lower);
-            higher = qr.getQuotient();
+            higher = lower;
             lower = qr.getRemainder();
         } while (!lower.equals(ZERO));
 
         return higher;
     }
 
+    /**
+     * Returns whether or not {@code this} is greater than {@code oter}
+     */
     public boolean greaterThan(UnboundedInteger other) {
         if (sign > other.sign) return true;
         if (sign < other.sign) return false;
@@ -434,5 +466,9 @@ public class UnboundedInteger {
         public UnboundedInteger getRemainder() {
             return remainder;
         }
+    }
+
+    private void log(Object output) {
+        // System.out.println(output);
     }
 }
