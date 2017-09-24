@@ -108,12 +108,17 @@ public class UnboundedInteger {
      */
     private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
         List<Integer> newMagnitude = new LinkedList<Integer>();
+        // The position indicates the digits being added
         int position = 0;
+        // max equals the highest number of digits between the two numbers
         int max = Math.max(magnitude1.size(), magnitude2.size());
         int carry = 0;
+        // loops over each digit in the numbers
         while (position < max || carry > 0) {
             int initialDigit;
             int otherDigit;
+            // initialises the initialDigit and otherDigit to the digit
+            // at position or 0 if one number has less digits than the other
             if (position >= magnitude1.size()) {
                 initialDigit = 0;
             } else {
@@ -124,16 +129,19 @@ public class UnboundedInteger {
             } else {
                 otherDigit = magnitude2.get(position);
             }
+            // add the digits and any carry values from the previous added digits
             int add = initialDigit + otherDigit + carry;
+            // reset carry to 0
             carry = 0;
+            // if the added digits is greater than 9 then add to carry
             if (add > 9) {
                 carry = 1;
-                add = add % 10;
+                add = add % 10; // returns the ones digit as tens is added to carry
             }
-            newMagnitude.add(add);
-            position += 1;
+            newMagnitude.add(add); // adds the digit to newMagnitude
+            position += 1; // increase the position of the digits
         }
-        return newMagnitude;
+        return newMagnitude; // returns the result of the added magnitudes
     }
 
     /**
@@ -142,13 +150,18 @@ public class UnboundedInteger {
      * @return Result
      */
     public UnboundedInteger add(UnboundedInteger other) {
+        // Test to see if one number is zero, if so return the other number
         if (sign == 0) return new UnboundedInteger(1, other.magnitude);
         if (other.sign == 0) return new UnboundedInteger(1, magnitude);
+        // if both signs are the same add the absolute values and return the original sign.
         if (sign == other.sign) return new UnboundedInteger(sign, add(magnitude, other.magnitude));
 
         List<Integer> newMagnitude = new LinkedList<Integer>();
+        // if the signs are different compare the absolute values
+        // then subtract the smaller value from the larger value
         int cmp = compareMagnitude(other);
         if (cmp == 0) {
+            // if the absolute values are the same return zero
             newMagnitude.add(0);
             return new UnboundedInteger(0, newMagnitude);
         } else if (cmp > 0) {
@@ -156,17 +169,23 @@ public class UnboundedInteger {
         } else {
             newMagnitude = subtract(other.magnitude, magnitude);
         }
+        // return new UnboundedInteger with the new absolute value and the sign of the larger magnitude
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
     private static List<Integer> subtract(List<Integer> magnitude1, List<Integer> magnitude2) {
         List<Integer> newMagnitude = new LinkedList<Integer>();
+        // The position indicates the digits being subtracted
         int position = 0;
+        // max equals the highest number of digits between the two numbers
         int max = Math.max(magnitude1.size(), magnitude2.size());
         int borrow = 0;
+        // loops over each digit in the numbers
         while (position < max || borrow > 0) {
             int initialDigit;
             int otherDigit;
+            // initialises the initialDigit and otherDigit to the digit
+            // at position or 0 if one number has less digits than the other
             if (position >= magnitude1.size()) {
                 initialDigit = 0;
             } else {
@@ -177,32 +196,36 @@ public class UnboundedInteger {
             } else {
                 otherDigit = magnitude2.get(position);
             }
-
+            // checks if previous digits needed to borrow from next digits
             if (borrow == 1) {
-                initialDigit -= 1;
-                borrow = 0;
+                initialDigit -= 1; // minus borrowed digit off
+                borrow = 0; // resets borrow
             }
             int subtract;
+            // if initialDigit is greater than otherDigit then subtract
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
+            // if initialDigit is less than otherDigit need to borrow from next digit
             } else if (initialDigit < otherDigit) {
                 borrow = 1;
-                initialDigit += 10;
+                initialDigit += 10; // add borrowed 10 to initial digit
                 subtract = initialDigit - otherDigit;
-                newMagnitude.add(subtract);
-                position += 1;
+                newMagnitude.add(subtract); // add digit to newMagnitude
+                position += 1; // increase position
                 continue;
             } else {
-                subtract = 0;
+                subtract = 0; // if both digits are the same then return 0
             }
 
-            newMagnitude.add(subtract);
-            position += 1;
+            newMagnitude.add(subtract); // add digit to newMagnitude
+            position += 1; // increase position
         }
+        // removes any leading zeros from subtracting a number with less digits
+        // from a number with more digits
         while (newMagnitude.get(newMagnitude.size()-1) == 0 && newMagnitude.size() > 1) {
             newMagnitude.remove(newMagnitude.size()-1);
         }
-        return newMagnitude;
+        return newMagnitude; // returns the result of the added magnitudes
     }
 
     /**
@@ -211,18 +234,28 @@ public class UnboundedInteger {
      * @return Result
      */
     public UnboundedInteger subtract(UnboundedInteger other) {
+        // Test to see if one number is zero and other number is positive
+        // if so return the other number as a negative
         if (sign == 0 && other.sign == 1) {
             return new UnboundedInteger(-1, other.magnitude);
+        // Test to see if one number is zero and other number is negative
+        // if so return the other number as a positive
         } else if (sign == 0 && other.sign == -1) {
             return new UnboundedInteger(1, other.magnitude);
+        // Test to see if other number is zero, if so return original number
         }else if (other.sign == 0) {
             return new UnboundedInteger(1, magnitude);
+        // Test to see if both signs are different
+        // if so add absolute values and return original sign
         } else if (sign != other.sign) {
             return new UnboundedInteger(sign, add(magnitude, other.magnitude));
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
+        // if the signs are the same compare the absolute values
+        // then subtract the smaller value from the larger value
         int cmp = compareMagnitude(other);
         if (cmp == 0) {
+            // if the absolute values are the same return zero
             newMagnitude.add(0);
             return new UnboundedInteger(0, newMagnitude);
         } else if (cmp > 0) {
@@ -230,6 +263,7 @@ public class UnboundedInteger {
         } else {
             newMagnitude = subtract(other.magnitude, magnitude);
         }
+        // return new UnboundedInteger with the new absolute value and the sign of the larger magnitude
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
@@ -298,11 +332,14 @@ public class UnboundedInteger {
      * @return QuotientAndRemainder object containing the quotient and remainder
      */
     public QuotientAndRemainder divide(UnboundedInteger other) {
+        // if other number is 0 then throw exception as cannot divide by 0
         if (other.equals(ZERO)) throw new ArithmeticException("Divide by zero");
         QuotientAndRemainder zero = new QuotientAndRemainder(ZERO, ZERO);
+        // if 0 divided by any other number then return 0
         if (equals(ZERO)) return zero;
 
-        int sign = sign(this) * sign(other);
+        int sign = sign(this) * sign(other); // calculates the sign
+        // finds the absolute values of each number
         UnboundedInteger absDividend = abs(this);
         UnboundedInteger absDivisor = abs(other);
 
@@ -346,11 +383,11 @@ public class UnboundedInteger {
 
         UnboundedInteger quotientMagnitude = quotientDigits.isEmpty() ? ZERO : new UnboundedInteger(quotientDigits);
         UnboundedInteger remainder = remainderDigits.isEmpty() ? ZERO : new UnboundedInteger(remainderDigits);
-
+        // if sign is negative then subtract absolute value from 0 to make quotient negative
         if (sign != 1) {
             quotientMagnitude = ZERO.subtract(quotientMagnitude);
         }
-
+        // sets result to the quotient and remainder
         QuotientAndRemainder result = new QuotientAndRemainder(quotientMagnitude, remainder);
 
         return result;
@@ -411,52 +448,68 @@ public class UnboundedInteger {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        // loops of scaned in input
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
+            // if line starts with a # print line and continue to next line
             if(line.charAt(0) == '#') {
                 System.out.println(line);
                 continue;
             }
+            // separate line by white space
             String[] numbers = line.split("\\s+");
+            // if more/less than 2 numbers and a operator then print syntax error
             if(numbers.length != 3) {
                 System.out.println(line);
                 System.out.println("# Syntax error");
                 continue;
             }
+            // assign numbers to num1 and num2 and operator to operand
             UnboundedInteger num1 = new UnboundedInteger(numbers[0]);
             String operand = numbers[1];
             UnboundedInteger num2 = new UnboundedInteger(numbers[2]);
             String result = "";
+            // switch statement for each operator to call specific operator method
             switch(operand) {
+                // calls add method to add the numbers
                 case "+":
                     result = num1.add(num2).toString();
                     break;
+                // calls subtract method to subtract the numbers
                 case "-":
                     result = num1.subtract(num2).toString();
                     break;
+                // calls multiply method to mulitply the numbers
                 case "*":
                     result = num1.multiply(num2).toString();
                     break;
+                // calls divide method to divide the numbers with remainder
                 case "/":
                     QuotientAndRemainder tmp = num1.divide(num2);
                     result = tmp.getQuotient() + " r " + tmp.getRemainder();
                     break;
+                // calls gcd method to find the greatest common divisor
                 case "gcd":
                     result = num1.gcd(num2).toString();
                     break;
+                // calls greaterThan method and returns true or false
                 case ">":
                     result = "" + num1.greaterThan(num2);
                     break;
+                // calls lessThank method and returns true or false
                 case "<":
                     result = "" + num1.lessThan(num2);
                     break;
+                // calls equals method and returns true or false
                 case "=":
                     result = "" + num1.equals(num2);
                     break;
+                // if no operator given then print syntax error
                 default:
                     System.out.println(line);
                     System.out.println("# Syntax error");
             }
+            // if result is found then print result with leading #
             if (!result.equals("")) {
                 System.out.println(line);
                 System.out.println("# " + result);
@@ -465,19 +518,20 @@ public class UnboundedInteger {
         scanner.close();
     }
 
+    // class to set separate variables for quotient and remainder
     private class QuotientAndRemainder {
         private UnboundedInteger quotient;
         private UnboundedInteger remainder;
-
+        // constructor to set the quotient and remainder of the divided result
         public QuotientAndRemainder(UnboundedInteger quotient, UnboundedInteger remainder) {
             this.quotient = quotient;
             this.remainder = remainder;
         }
-
+        // method to get the quotient value
         public UnboundedInteger getQuotient() {
             return quotient;
         }
-
+        // method to get the remainder value
         public UnboundedInteger getRemainder() {
             return remainder;
         }
