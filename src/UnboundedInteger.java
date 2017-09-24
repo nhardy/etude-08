@@ -153,12 +153,13 @@ public class UnboundedInteger {
     }
 
     public UnboundedInteger subtract(UnboundedInteger other) {
-        if (sign == 0 && other.sign != -1) {
+        if (sign == 0 && other.sign == 1) {
             return new UnboundedInteger(-1, other.magnitude);
-        } else if (other.sign == 0) {
+        } else if (sign == 0 && other.sign == -1) {
+            return new UnboundedInteger(1, other.magnitude);
+        }else if (other.sign == 0) {
             return new UnboundedInteger(1, magnitude);
         } else if (sign != other.sign) {
-            // TODO: Check if this works as intended if other.sign is negative
             return new UnboundedInteger(sign, add(magnitude, other.magnitude));
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
