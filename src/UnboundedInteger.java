@@ -131,6 +131,11 @@ public class UnboundedInteger {
             } else {
                 otherDigit = magnitude2.get(position);
             }
+
+            if (borrow == 1) {
+                initialDigit -= 1;
+                borrow = 0;
+            }
             int subtract;
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
@@ -144,14 +149,10 @@ public class UnboundedInteger {
             } else {
                 subtract = 0;
             }
-            if (borrow == 1) {
-                subtract -= borrow;
-            }
-            borrow = 0;
             newMagnitude.add(subtract);
             position += 1;
         }
-        while (newMagnitude.get(newMagnitude.size()-1) == 0) {
+        while (newMagnitude.get(newMagnitude.size()-1) == 0 && newMagnitude.size() > 1) {
             newMagnitude.remove(newMagnitude.size()-1);
         }
         return newMagnitude;
@@ -169,14 +170,11 @@ public class UnboundedInteger {
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
         int cmp = compareMagnitude(other);
-        System.out.println("cmp: " + cmp);
         if (cmp == 0) {
             newMagnitude.add(0);
             return new UnboundedInteger(0, newMagnitude);
         } else if (cmp > 0) {
-            System.out.println("mag: " + magnitude + " otherMag: " + other.magnitude);
             newMagnitude = subtract(magnitude, other.magnitude);
-            System.out.println("newMag: " + newMagnitude);
         } else {
             newMagnitude = subtract(other.magnitude, magnitude);
         }
@@ -244,17 +242,11 @@ public class UnboundedInteger {
         UnboundedInteger count = ZERO;
         UnboundedInteger remainder = ZERO;
         UnboundedInteger tmp = ZERO;
-        System.out.println("sign: " + sign);
-        System.out.println("num1: " + num1);
-        System.out.println("num2: " + num2);
 
         while (num1.greaterThan(ZERO)) {
-            System.out.println("num1: " + num1 + " - num2: " + num2);
             tmp = num1.subtract(num2);
-            System.out.println("= tmp: " + tmp);
             if (tmp.lessThan(ZERO)) {
                 remainder = num1.subtract(ZERO);
-                System.out.println("remainder: " + remainder);
                 if (remainder.lessThan(ZERO)) {
                     remainder = ZERO;
                 }
@@ -262,8 +254,6 @@ public class UnboundedInteger {
             } else {
                 num1 = tmp;
                 count = count.add(ONE);
-                System.out.println("num1 in loop: " + num1);
-                System.out.println("count: " + count);
             }
         }
 
