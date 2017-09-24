@@ -177,6 +177,10 @@ public class UnboundedInteger {
             } else {
                 otherDigit = magnitude2.get(position);
             }
+            if (borrow == 1) {
+                initialDigit -= borrow;
+            }
+            borrow = 0;
             int subtract;
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
@@ -190,10 +194,7 @@ public class UnboundedInteger {
             } else {
                 subtract = 0;
             }
-            if (borrow == 1) {
-                subtract -= borrow;
-            }
-            borrow = 0;
+
             newMagnitude.add(subtract);
             position += 1;
         }
@@ -220,14 +221,11 @@ public class UnboundedInteger {
         }
         List<Integer> newMagnitude = new LinkedList<Integer>();
         int cmp = compareMagnitude(other);
-        log("cmp: " + cmp);
         if (cmp == 0) {
             newMagnitude.add(0);
             return new UnboundedInteger(0, newMagnitude);
         } else if (cmp > 0) {
-            log("mag: " + magnitude + " otherMag: " + other.magnitude);
             newMagnitude = subtract(magnitude, other.magnitude);
-            log("newMag: " + newMagnitude);
         } else {
             newMagnitude = subtract(other.magnitude, magnitude);
         }
@@ -304,39 +302,55 @@ public class UnboundedInteger {
         if (equals(ZERO)) return zero;
 
         int sign = sign(this) * sign(other);
-        UnboundedInteger num1 = abs(this);
-        UnboundedInteger num2 = abs(other);
-        UnboundedInteger count = ZERO;
-        UnboundedInteger remainder = ZERO;
-        UnboundedInteger tmp = ZERO;
-        log("sign: " + sign);
-        log("num1: " + num1);
-        log("num2: " + num2);
+        UnboundedInteger absDividend = abs(this);
+        UnboundedInteger absDivisor = abs(other);
 
-        while (num1.greaterThan(ZERO)) {
-            log("num1: " + num1 + " - num2: " + num2);
-            tmp = num1.subtract(num2);
-            log("= tmp: " + tmp);
-            if (tmp.lessThan(ZERO)) {
-                remainder = num1.subtract(ZERO);
-                log("remainder: " + remainder);
-                if (remainder.lessThan(ZERO)) {
-                    remainder = ZERO;
+        char[] dividendCharArray = absDividend.toString().toCharArray();
+        ArrayList<Character> dividendChars = new ArrayList<Character>();
+        for (int i = 0; i < dividendCharArray.length; i++) {
+            dividendChars.add(dividendCharArray[i]);
+        }
+
+        String quotientDigits = "";
+        String remainderDigits = "";
+
+        int successful = 0;
+
+        for (int i = 0; i < dividendChars.size(); i++) {
+            String partialDividendString = remainderDigits;
+            remainderDigits = "";
+            for (int j = successful; j < i + 1; j++) {
+                partialDividendString += dividendChars.get(j);
+            }
+            UnboundedInteger partialDividend = new UnboundedInteger(partialDividendString);
+            UnboundedInteger count = ZERO;
+
+            while (absDivisor.lessThan(partialDividend) || absDivisor.equals(partialDividend)) {
+                successful = i + 1;
+                partialDividend = partialDividend.subtract(absDivisor);
+
+                if (partialDividend.equals(ZERO)) {
+                    remainderDigits = "";
+                } else {
+                    remainderDigits = partialDividend.toString();
                 }
-                num1 = tmp;
-            } else {
-                num1 = tmp;
+
                 count = count.add(ONE);
-                log("num1 in loop: " + num1);
-                log("count: " + count);
+            }
+
+            if (!count.equals(ZERO) || quotientDigits.length() != 0) {
+                quotientDigits += count.toString();
             }
         }
 
+        UnboundedInteger quotientMagnitude = quotientDigits.isEmpty() ? ZERO : new UnboundedInteger(quotientDigits);
+        UnboundedInteger remainder = remainderDigits.isEmpty() ? ZERO : new UnboundedInteger(remainderDigits);
+
         if (sign != 1) {
-            count = ZERO.subtract(count);
+            quotientMagnitude = ZERO.subtract(quotientMagnitude);
         }
 
-        QuotientAndRemainder result = new QuotientAndRemainder(count, remainder);
+        QuotientAndRemainder result = new QuotientAndRemainder(quotientMagnitude, remainder);
 
         return result;
     }
@@ -364,7 +378,7 @@ public class UnboundedInteger {
     }
 
     /**
-     * Returns whether or not {@code this} is greater than {@code oter}
+     * Returns whether or not {@code this} is greater than {@code other}
      */
     public boolean greaterThan(UnboundedInteger other) {
         if (sign > other.sign) return true;
