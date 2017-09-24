@@ -177,10 +177,11 @@ public class UnboundedInteger {
             } else {
                 otherDigit = magnitude2.get(position);
             }
+
             if (borrow == 1) {
-                initialDigit -= borrow;
+                initialDigit -= 1;
+                borrow = 0;
             }
-            borrow = 0;
             int subtract;
             if (initialDigit > otherDigit) {
                 subtract = initialDigit - otherDigit;
@@ -198,7 +199,7 @@ public class UnboundedInteger {
             newMagnitude.add(subtract);
             position += 1;
         }
-        while (newMagnitude.get(newMagnitude.size()-1) == 0) {
+        while (newMagnitude.get(newMagnitude.size()-1) == 0 && newMagnitude.size() > 1) {
             newMagnitude.remove(newMagnitude.size()-1);
         }
         return newMagnitude;
@@ -480,9 +481,5 @@ public class UnboundedInteger {
         public UnboundedInteger getRemainder() {
             return remainder;
         }
-    }
-
-    private void log(Object output) {
-        // System.out.println(output);
     }
 }
