@@ -1,10 +1,7 @@
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 import java.lang.Math;
 
 /**
@@ -12,11 +9,28 @@ import java.lang.Math;
  * @author Kimberley Louw, Nathan Hardy
  */
 public class UnboundedInteger {
+    /**
+     * UnboundedInteger constant for {@code 0}
+     */
     private static UnboundedInteger ZERO = new UnboundedInteger("0");
+    /**
+     * UnboundedInteger constant for {@code 1}
+     */
     private static UnboundedInteger ONE = new UnboundedInteger("1");
+
+    /**
+     * Sign for the UnboundedInteger. {@code -1} for negative, {@code 0} for {@code 0}, and {@code 1} for postive numbers.
+     */
     private int sign;
+    /**
+     * List of magnitude components. Currently, these are single decimal digit integers.
+     */
     private List<Integer> magnitude = new LinkedList<Integer>();
 
+    /**
+     * Creates an UnboundedInteger from a String representaion.
+     * @param number String representation
+     */
     public UnboundedInteger(String number) {
         int negIndex = number.lastIndexOf('-');
         sign = negIndex == 0 ? -1 : 1;
@@ -32,11 +46,21 @@ public class UnboundedInteger {
         }
     }
 
+    /**
+     * Creates an UnboundedInteger from a {@code sign} and {@code magnitude}
+     * @param sign Sign variable
+     * @param magnitude Magnitude component List
+     */
     public UnboundedInteger(int sign, List<Integer> magnitude) {
         this.sign = sign;
         this.magnitude = magnitude;
     }
 
+    /**
+     * Compares the magnitude of the current UnboundedInteger with that of {@code other}
+     * @param other Other UnboundedInteger for comparison
+     * @return Integer consistent with a comparator
+     */
     private int compareMagnitude(UnboundedInteger other) {
         if (magnitude.size() > other.magnitude.size()) return 1;
         if (magnitude.size() < other.magnitude.size()) return -1;
@@ -47,21 +71,41 @@ public class UnboundedInteger {
         return 0;
     }
 
+    /**
+     * Returns the absolute value of an UnboundedInteger
+     * @param number The UnboundedInteger on which to operate
+     * @return Absolute value of {@code number}
+     */
     private static UnboundedInteger abs(UnboundedInteger number) {
         if (number.equals(ZERO) || number.greaterThan(ZERO)) return number;
         return ZERO.subtract(number);
     }
 
+    /**
+     * Returns the sign number of an UnboundedInteger, without using the internal sign
+     * @param number The UnboundedInteger on which to operate
+     * @return int representation of {@code number}'s sign
+     */
     private static int sign(UnboundedInteger number) {
         if (number.equals(ZERO)) return 0;
         if (number.greaterThan(ZERO)) return 1;
         return -1;
     }
 
+    /**
+     * Truncated halving operation required by program specification
+     * @return Half of the current UnboundedInteger
+     */
     public UnboundedInteger truncatedHalf() {
         return divide(new UnboundedInteger("2")).getQuotient();
     }
 
+    /**
+     * Returns a new magnitude List from the addition of two other magnitude Lists
+     * @param magnitude1 first number
+     * @param magnitude2 second number
+     * @return List of magnitude components
+     */
     private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
         List<Integer> newMagnitude = new LinkedList<Integer>();
         int position = 0;
@@ -92,14 +136,16 @@ public class UnboundedInteger {
         return newMagnitude;
     }
 
+    /**
+     * Returns a new UnboundedInteger, with the {@code other} added to {@code this}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger add(UnboundedInteger other) {
-        if (sign == 0) {
-            return new UnboundedInteger(1, other.magnitude);
-        } else if (other.sign == 0) {
-            return new UnboundedInteger(1, magnitude);
-        } else if (sign == other.sign) {
-            return new UnboundedInteger(sign, add(magnitude, other.magnitude));
-        }
+        if (sign == 0) return new UnboundedInteger(1, other.magnitude);
+        if (other.sign == 0) return new UnboundedInteger(1, magnitude);
+        if (sign == other.sign) return new UnboundedInteger(sign, add(magnitude, other.magnitude));
+
         List<Integer> newMagnitude = new LinkedList<Integer>();
         int cmp = compareMagnitude(other);
         if (cmp == 0) {
@@ -158,6 +204,11 @@ public class UnboundedInteger {
         return newMagnitude;
     }
 
+    /**
+     * Returns a new UnboundedInteger, with the {@code other} subtracted from {@code this}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger subtract(UnboundedInteger other) {
         if (sign == 0 && other.sign == 1) {
             return new UnboundedInteger(-1, other.magnitude);
@@ -181,6 +232,10 @@ public class UnboundedInteger {
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
+    /**
+     * Returns the current UnboundedInteger multiplied by 10. Used for place-value shifting.
+     * @return Result
+     */
     private UnboundedInteger multiplyBy10() {
         UnboundedInteger result = ZERO;
         for (int i = 0; i < 10; i++) {
@@ -189,6 +244,11 @@ public class UnboundedInteger {
         return result;
     }
 
+    /**
+     * Returns a new UnboundedInteger which is the result of {@code this} multiplied by {@code other}.
+     * @param other Other UnboundedInteger
+     * @return Result
+     */
     public UnboundedInteger multiply(UnboundedInteger other) {
         if (equals(ZERO) || other.equals(ZERO)) return ZERO;
 
@@ -231,6 +291,11 @@ public class UnboundedInteger {
         return ZERO.subtract(absResult);
     }
 
+    /**
+     * Returns the quotient and remainder for {@code this} divided by {@code other}.
+     * @param other Other UnboundedInteger
+     * @return QuotientAndRemainder object containing the quotient and remainder
+     */
     public QuotientAndRemainder divide(UnboundedInteger other) {
         if (other.equals(ZERO)) throw new ArithmeticException("Divide by zero");
         QuotientAndRemainder zero = new QuotientAndRemainder(ZERO, ZERO);
@@ -266,6 +331,11 @@ public class UnboundedInteger {
         return result;
     }
 
+    /**
+     * Returns the greatest common divisor of {@code this} and {@code other}. Uses Euclid's algorithm.
+     * @param other Other UnboundedInteger
+     * @return Greatest Common Divisor
+     */
     public UnboundedInteger gcd(UnboundedInteger other) {
         if (equals(other)) return this;
 
@@ -276,13 +346,16 @@ public class UnboundedInteger {
 
         do {
             QuotientAndRemainder qr = higher.divide(lower);
-            higher = qr.getQuotient();
+            higher = lower;
             lower = qr.getRemainder();
         } while (!lower.equals(ZERO));
 
         return higher;
     }
 
+    /**
+     * Returns whether or not {@code this} is greater than {@code oter}
+     */
     public boolean greaterThan(UnboundedInteger other) {
         if (sign > other.sign) return true;
         if (sign < other.sign) return false;
@@ -383,5 +456,9 @@ public class UnboundedInteger {
         public UnboundedInteger getRemainder() {
             return remainder;
         }
+    }
+
+    private void log(Object output) {
+        // System.out.println(output);
     }
 }
