@@ -1,6 +1,10 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import java.lang.Math;
 
 /**
@@ -54,10 +58,8 @@ public class UnboundedInteger {
         return -1;
     }
 
-    public UnboundedInteger truncatedHalf(UnboundedInteger other) {
-        UnboundedInteger half = ZERO;
-        // half = divide(other);
-        return half;
+    public UnboundedInteger truncatedHalf() {
+        return divide(new UnboundedInteger("2")).getQuotient();
     }
 
     private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
@@ -181,6 +183,14 @@ public class UnboundedInteger {
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
+    private UnboundedInteger multiplyBy10() {
+        UnboundedInteger result = ZERO;
+        for (int i = 0; i < 10; i++) {
+            result = result.add(this);
+        }
+        return result;
+    }
+
     public UnboundedInteger multiply(UnboundedInteger other) {
         if (equals(ZERO) || other.equals(ZERO)) return ZERO;
 
@@ -189,10 +199,33 @@ public class UnboundedInteger {
         UnboundedInteger absOther = abs(other);
 
         boolean thisGtOther = absThis.greaterThan(absOther);
+        UnboundedInteger greater = thisGtOther ? absThis : absOther;
+        UnboundedInteger lesser = thisGtOther ? absOther : absThis;
         UnboundedInteger absResult = ZERO;
 
-        for (UnboundedInteger i = ZERO; i.lessThan(thisGtOther ? absOther : absThis); i = i.add(ONE)) {
-            absResult = absResult.add(thisGtOther ? absThis : absOther);
+        // We aren't allowed to access the underlying magnitude ArrayList
+        // for this method, so we convert the number to a string and
+        // operate on each digit accordingly.
+        char[] lesserDigitChars = lesser.toString().toCharArray();
+        ArrayList<Character> lesserDigits = new ArrayList<Character>();
+        for (int i = lesserDigitChars.length - 1; i >= 0; i--) {
+            lesserDigits.add(lesserDigitChars[i]);
+        }
+
+        for (int i = 0; i < lesserDigits.size(); i++) {
+            int digitAtPlace = Integer.parseInt("" + lesserDigits.get(i));
+            UnboundedInteger partialSum = ZERO;
+            for (int j = 0; j < digitAtPlace; j++) {
+                partialSum = partialSum.add(greater);
+            }
+
+            // Shift result by 10^i
+            for (int j = 0; j < i; j++) {
+                partialSum = partialSum.multiplyBy10();
+            }
+
+            // Add
+            absResult = absResult.add(partialSum);
         }
 
         if (sign == 1) return absResult;
@@ -247,19 +280,17 @@ public class UnboundedInteger {
         if (equals(other)) return this;
 
         boolean thisGtOther = this.greaterThan(other);
-        UnboundedInteger higher = thisGtOther ? this : other;
         UnboundedInteger lower = thisGtOther ? other : this;
+        if (lower.equals(ZERO)) return lower;
+        UnboundedInteger higher = thisGtOther ? this : other;
 
-        UnboundedInteger remainder = ZERO;
         do {
-            System.out.println("GCD Divide " + higher + " by " + lower);
             QuotientAndRemainder qr = higher.divide(lower);
-            remainder = qr.getRemainder();
-            higher = lower;
-            lower = qr.getQuotient();
-        } while (!remainder.equals(ZERO));
+            higher = qr.getQuotient();
+            lower = qr.getRemainder();
+        } while (!lower.equals(ZERO));
 
-        return lower;
+        return higher;
     }
 
     public boolean greaterThan(UnboundedInteger other) {
