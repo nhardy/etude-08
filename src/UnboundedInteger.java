@@ -394,46 +394,62 @@ public class UnboundedInteger {
         // Last successful division occurred at this position in the dividendChars list
         int successful = 0;
 
+        // Keep advancing one digit at a time through the dividend
         for (int i = 0; i < dividendChars.size(); i++) {
             // Carry down the digits of the previous remainder
             String partialDividendString = remainderDigits;
             // Clear the remainder digits
             remainderDigits = "";
 
+            // Build up the string of digits for the part of the dividend that
+            // we're interested in - from the last successful division index
+            // to the current char in the dividend (index i)
             for (int j = successful; j < i + 1; j++) {
                 partialDividendString += dividendChars.get(j);
             }
+            // Turn the String into a new UnboundedInteger
             UnboundedInteger partialDividend = new UnboundedInteger(partialDividendString);
-            UnboundedInteger count = ZERO;
+            // Count the number of times our divisor fits into the partial dividend
+            int count = 0;
 
+            // While our divisor is less than or equal to the partial dividend
             while (absDivisor.lessThan(partialDividend) || absDivisor.equals(partialDividend)) {
+                // Advance the successful division marker one space from the current char of the divisor
                 successful = i + 1;
+                // Subtract the divisor from the partial dividend
                 partialDividend = partialDividend.subtract(absDivisor);
 
+                // If the partial dividend reaches zero, we divided evenly, so the remainder to carry down is empty
                 if (partialDividend.equals(ZERO)) {
                     remainderDigits = "";
                 } else {
+                    // Otherwise, copy the remaining digits to be carried down
                     remainderDigits = partialDividend.toString();
                 }
 
-                count = count.add(ONE);
+                // Add one to the division count
+                count++;
             }
 
-            if (!count.equals(ZERO) || quotientDigits.length() != 0) {
-                quotientDigits += count.toString();
+            // If the partial dividend could not be divided, or we've already started recording digits
+            if (count != 0 || quotientDigits.length() != 0) {
+                // Add the digits to the quotient
+                quotientDigits += count;
             }
         }
 
+        // Convert the quotient string to an UnboundedInteger
         UnboundedInteger quotientMagnitude = quotientDigits.isEmpty() ? ZERO : new UnboundedInteger(quotientDigits);
+        // Convert the remainder string to an UnboundedInteger
         UnboundedInteger remainder = remainderDigits.isEmpty() ? ZERO : new UnboundedInteger(remainderDigits);
-        // if sign is negative then subtract absolute value from 0 to make quotient negative
+
+        // If the sign of the result should be negative, subtract the magnitude from zero
         if (sign != 1) {
             quotientMagnitude = ZERO.subtract(quotientMagnitude);
         }
-        // sets result to the quotient and remainder
-        QuotientAndRemainder result = new QuotientAndRemainder(quotientMagnitude, remainder);
 
-        return result;
+        // Store the result in the QuotientAndRemainder container class
+        return new QuotientAndRemainder(quotientMagnitude, remainder);
     }
 
     /**
@@ -442,20 +458,22 @@ public class UnboundedInteger {
      * @return Greatest Common Divisor
      */
     public UnboundedInteger gcd(UnboundedInteger other) {
+        // If the numbers are equal, they are their own GCD
         if (equals(other)) return this;
 
+        // Sort the numbers
         boolean thisGtOther = this.greaterThan(other);
-        UnboundedInteger lower = thisGtOther ? other : this;
-        if (lower.equals(ZERO)) return lower;
-        UnboundedInteger higher = thisGtOther ? this : other;
+        UnboundedInteger divisor = thisGtOther ? other : this;
+        if (divisor.equals(ZERO)) return divisor;
+        UnboundedInteger dividend = thisGtOther ? this : other;
 
         do {
-            QuotientAndRemainder qr = higher.divide(lower);
-            higher = lower;
-            lower = qr.getRemainder();
-        } while (!lower.equals(ZERO));
+            QuotientAndRemainder qr = dividend.divide(divisor);
+            dividend = divisor;
+            divisor = qr.getRemainder();
+        } while (!divisor.equals(ZERO));
 
-        return higher;
+        return dividend;
     }
 
     /**
