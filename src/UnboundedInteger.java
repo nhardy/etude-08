@@ -1,3 +1,7 @@
+/**
+ * @author Kimberley Louw, Nathan Hardy
+ */
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -6,17 +10,12 @@ import java.lang.Math;
 
 /**
  * UnboundedInteger class
- * @author Kimberley Louw, Nathan Hardy
  */
 public class UnboundedInteger {
     /**
      * UnboundedInteger constant for {@code 0}
      */
     private static UnboundedInteger ZERO = new UnboundedInteger("0");
-    /**
-     * UnboundedInteger constant for {@code 1}
-     */
-    private static UnboundedInteger ONE = new UnboundedInteger("1");
 
     /**
      * Sign for the UnboundedInteger. {@code -1} for negative, {@code 0} for {@code 0}, and {@code 1} for postive numbers.
