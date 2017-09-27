@@ -1,3 +1,7 @@
+/**
+ * @author Kimberley Louw, Nathan Hardy
+ */
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -6,17 +10,12 @@ import java.lang.Math;
 
 /**
  * UnboundedInteger class
- * @author Kimberley Louw, Nathan Hardy
  */
 public class UnboundedInteger {
     /**
      * UnboundedInteger constant for {@code 0}
      */
     private static UnboundedInteger ZERO = new UnboundedInteger("0");
-    /**
-     * UnboundedInteger constant for {@code 1}
-     */
-    private static UnboundedInteger ONE = new UnboundedInteger("1");
 
     /**
      * Sign for the UnboundedInteger. {@code -1} for negative, {@code 0} for {@code 0}, and {@code 1} for postive numbers.
@@ -28,19 +27,28 @@ public class UnboundedInteger {
     private List<Integer> magnitude = new LinkedList<Integer>();
 
     /**
-     * Creates an UnboundedInteger from a String representaion.
+     * Creates an UnboundedInteger from a String representation
      * @param number String representation
      */
     public UnboundedInteger(String number) {
+        // If there is a negative sign at the first
+        // character, we have a negative number. Otherwise,
+        // the number is positive (except for 0).
         int negIndex = number.lastIndexOf('-');
         sign = negIndex == 0 ? -1 : 1;
 
+        // If the first character after the negative sign (or
+        // the first character if there is none) is a zero,
+        // set the sign to 0 and let the magnitude consist of
+        // a single zero digit.
         if (number.charAt(negIndex + 1) == '0') {
             sign = 0;
             magnitude.add(0);
             return;
         }
 
+        // For each digit in the input, starting from least
+        // significant, add that digit to the magnitude List
         for (int i = number.length() - 1; i > negIndex; i--) {
             magnitude.add(Integer.parseInt(number.substring(i, i + 1)));
         }
@@ -51,7 +59,7 @@ public class UnboundedInteger {
      * @param sign Sign variable
      * @param magnitude Magnitude component List
      */
-    public UnboundedInteger(int sign, List<Integer> magnitude) {
+    private UnboundedInteger(int sign, List<Integer> magnitude) {
         this.sign = sign;
         this.magnitude = magnitude;
     }
@@ -62,22 +70,35 @@ public class UnboundedInteger {
      * @return Integer consistent with a comparator
      */
     private int compareMagnitude(UnboundedInteger other) {
+        // If the size of the magnitude list is greater than that of other
         if (magnitude.size() > other.magnitude.size()) return 1;
+        // If the size of the magnitude list is less than that of other
         if (magnitude.size() < other.magnitude.size()) return -1;
+        // If same length, loop through each digit from most significant to least
         for (int i = magnitude.size() - 1; i >= 0; i--) {
+            // If the digit is greater than that of other
             if (magnitude.get(i) > other.magnitude.get(i)) return 1;
+            // If the digit is lesser than that of other
             if (magnitude.get(i) < other.magnitude.get(i)) return -1;
         }
+        // The magnitudes are identical
         return 0;
     }
 
     /**
-     * Returns the absolute value of an UnboundedInteger
+     * Returns the absolute value of an UnboundedInteger, without using the internal variables
      * @param number The UnboundedInteger on which to operate
      * @return Absolute value of {@code number}
      */
     private static UnboundedInteger abs(UnboundedInteger number) {
+        // Note: This would be more efficient by setting the
+        // internal sign variable to its own absolute value
+        // but requirements for this etude mandated that the
+        // consumers of this method not modify internal variables
+
+        // If {@code this} >= 0, return as-is
         if (number.equals(ZERO) || number.greaterThan(ZERO)) return number;
+        // Otherwise, subtract the current number from zero
         return ZERO.subtract(number);
     }
 
@@ -162,8 +183,7 @@ public class UnboundedInteger {
         int cmp = compareMagnitude(other);
         if (cmp == 0) {
             // if the absolute values are the same return zero
-            newMagnitude.add(0);
-            return new UnboundedInteger(0, newMagnitude);
+            return ZERO;
         } else if (cmp > 0) {
             newMagnitude = subtract(magnitude, other.magnitude);
         } else {
@@ -173,6 +193,12 @@ public class UnboundedInteger {
         return new UnboundedInteger(cmp == sign ? 1 : -1, newMagnitude);
     }
 
+    /**
+     * Returns a new magnitude List from the subtraction of one magnitude List from another
+     * @param magnitude1 first number
+     * @param magnitude2 second number
+     * @return List of magnitude components
+     */
     private static List<Integer> subtract(List<Integer> magnitude1, List<Integer> magnitude2) {
         List<Integer> newMagnitude = new LinkedList<Integer>();
         // The position indicates the digits being subtracted
@@ -222,8 +248,8 @@ public class UnboundedInteger {
         }
         // removes any leading zeros from subtracting a number with less digits
         // from a number with more digits
-        while (newMagnitude.get(newMagnitude.size()-1) == 0 && newMagnitude.size() > 1) {
-            newMagnitude.remove(newMagnitude.size()-1);
+        while (newMagnitude.get(newMagnitude.size() - 1) == 0 && newMagnitude.size() > 1) {
+            newMagnitude.remove(newMagnitude.size() - 1);
         }
         return newMagnitude; // returns the result of the added magnitudes
     }
@@ -236,20 +262,16 @@ public class UnboundedInteger {
     public UnboundedInteger subtract(UnboundedInteger other) {
         // Test to see if one number is zero and other number is positive
         // if so return the other number as a negative
-        if (sign == 0 && other.sign == 1) {
-            return new UnboundedInteger(-1, other.magnitude);
+        if (sign == 0 && other.sign == 1) return new UnboundedInteger(-1, other.magnitude);
         // Test to see if one number is zero and other number is negative
         // if so return the other number as a positive
-        } else if (sign == 0 && other.sign == -1) {
-            return new UnboundedInteger(1, other.magnitude);
+        if (sign == 0 && other.sign == -1)  return new UnboundedInteger(1, other.magnitude);
         // Test to see if other number is zero, if so return original number
-        }else if (other.sign == 0) {
-            return new UnboundedInteger(1, magnitude);
+        if (other.sign == 0) return new UnboundedInteger(1, magnitude);
         // Test to see if both signs are different
         // if so add absolute values and return original sign
-        } else if (sign != other.sign) {
-            return new UnboundedInteger(sign, add(magnitude, other.magnitude));
-        }
+        if (sign != other.sign) return new UnboundedInteger(sign, add(magnitude, other.magnitude));
+
         List<Integer> newMagnitude = new LinkedList<Integer>();
         // if the signs are the same compare the absolute values
         // then subtract the smaller value from the larger value
@@ -273,6 +295,7 @@ public class UnboundedInteger {
      */
     private UnboundedInteger multiplyBy10() {
         UnboundedInteger result = ZERO;
+        // Adds {@code this} 10 times
         for (int i = 0; i < 10; i++) {
             result = result.add(this);
         }
@@ -285,18 +308,24 @@ public class UnboundedInteger {
      * @return Result
      */
     public UnboundedInteger multiply(UnboundedInteger other) {
+        // If either number is zero, the result will be zero
         if (equals(ZERO) || other.equals(ZERO)) return ZERO;
 
+        // The resulting sign will be the product of the two signs
         int sign = sign(this) * sign(other);
+
+        // Grab the absolute value of each number
         UnboundedInteger absThis = abs(this);
         UnboundedInteger absOther = abs(other);
 
+        // Sort the two numbers so that we can iterate over the smaller number for speed
         boolean thisGtOther = absThis.greaterThan(absOther);
         UnboundedInteger greater = thisGtOther ? absThis : absOther;
         UnboundedInteger lesser = thisGtOther ? absOther : absThis;
+
         UnboundedInteger absResult = ZERO;
 
-        // We aren't allowed to access the underlying magnitude ArrayList
+        // We aren't allowed to access the underlying magnitude List
         // for this method, so we convert the number to a string and
         // operate on each digit accordingly.
         char[] lesserDigitChars = lesser.toString().toCharArray();
@@ -305,6 +334,7 @@ public class UnboundedInteger {
             lesserDigits.add(lesserDigitChars[i]);
         }
 
+        // Multiply using shift and add
         for (int i = 0; i < lesserDigits.size(); i++) {
             int digitAtPlace = Integer.parseInt("" + lesserDigits.get(i));
             UnboundedInteger partialSum = ZERO;
@@ -321,8 +351,11 @@ public class UnboundedInteger {
             absResult = absResult.add(partialSum);
         }
 
+        // If the new sign is positive, we can just return the result
         if (sign == 1) return absResult;
 
+        // If the new sign is negative, make the result negative
+        // by subtracting the absolute result from zero
         return ZERO.subtract(absResult);
     }
 
@@ -332,17 +365,22 @@ public class UnboundedInteger {
      * @return QuotientAndRemainder object containing the quotient and remainder
      */
     public QuotientAndRemainder divide(UnboundedInteger other) {
-        // if other number is 0 then throw exception as cannot divide by 0
+        // If the dividend is zero, throw an Exception
         if (other.equals(ZERO)) throw new ArithmeticException("Divide by zero");
-        QuotientAndRemainder zero = new QuotientAndRemainder(ZERO, ZERO);
-        // if 0 divided by any other number then return 0
-        if (equals(ZERO)) return zero;
 
-        int sign = sign(this) * sign(other); // calculates the sign
-        // finds the absolute values of each number
+        // Zero divided by any nonzero integer is zero remainder zero
+        if (equals(ZERO)) return new QuotientAndRemainder(ZERO, ZERO);
+
+        // The resulting sign will be the product of the sign of the dividend and divisor
+        int sign = sign(this) * sign(other);
+
+        // Grab the absolute value of each number
         UnboundedInteger absDividend = abs(this);
         UnboundedInteger absDivisor = abs(other);
 
+        // We aren't allowed to access the underlying magnitude List
+        // for this method, so we convert the number to a string and
+        // operate on each digit accordingly.
         char[] dividendCharArray = absDividend.toString().toCharArray();
         ArrayList<Character> dividendChars = new ArrayList<Character>();
         for (int i = 0; i < dividendCharArray.length; i++) {
@@ -352,45 +390,65 @@ public class UnboundedInteger {
         String quotientDigits = "";
         String remainderDigits = "";
 
+        // Last successful division occurred at this position in the dividendChars list
         int successful = 0;
 
+        // Keep advancing one digit at a time through the dividend
         for (int i = 0; i < dividendChars.size(); i++) {
+            // Carry down the digits of the previous remainder
             String partialDividendString = remainderDigits;
+            // Clear the remainder digits
             remainderDigits = "";
+
+            // Build up the string of digits for the part of the dividend that
+            // we're interested in - from the last successful division index
+            // to the current char in the dividend (index i)
             for (int j = successful; j < i + 1; j++) {
                 partialDividendString += dividendChars.get(j);
             }
+            // Turn the String into a new UnboundedInteger
             UnboundedInteger partialDividend = new UnboundedInteger(partialDividendString);
-            UnboundedInteger count = ZERO;
+            // Count the number of times our divisor fits into the partial dividend
+            int count = 0;
 
+            // While our divisor is less than or equal to the partial dividend
             while (absDivisor.lessThan(partialDividend) || absDivisor.equals(partialDividend)) {
+                // Advance the successful division marker one space from the current char of the divisor
                 successful = i + 1;
+                // Subtract the divisor from the partial dividend
                 partialDividend = partialDividend.subtract(absDivisor);
 
+                // If the partial dividend reaches zero, we divided evenly, so the remainder to carry down is empty
                 if (partialDividend.equals(ZERO)) {
                     remainderDigits = "";
                 } else {
+                    // Otherwise, copy the remaining digits to be carried down
                     remainderDigits = partialDividend.toString();
                 }
 
-                count = count.add(ONE);
+                // Add one to the division count
+                count++;
             }
 
-            if (!count.equals(ZERO) || quotientDigits.length() != 0) {
-                quotientDigits += count.toString();
+            // If the partial dividend could not be divided, or we've already started recording digits
+            if (count != 0 || quotientDigits.length() != 0) {
+                // Add the digits to the quotient
+                quotientDigits += count;
             }
         }
 
+        // Convert the quotient string to an UnboundedInteger
         UnboundedInteger quotientMagnitude = quotientDigits.isEmpty() ? ZERO : new UnboundedInteger(quotientDigits);
+        // Convert the remainder string to an UnboundedInteger
         UnboundedInteger remainder = remainderDigits.isEmpty() ? ZERO : new UnboundedInteger(remainderDigits);
-        // if sign is negative then subtract absolute value from 0 to make quotient negative
+
+        // If the sign of the result should be negative, subtract the magnitude from zero
         if (sign != 1) {
             quotientMagnitude = ZERO.subtract(quotientMagnitude);
         }
-        // sets result to the quotient and remainder
-        QuotientAndRemainder result = new QuotientAndRemainder(quotientMagnitude, remainder);
 
-        return result;
+        // Store the result in the QuotientAndRemainder container class
+        return new QuotientAndRemainder(quotientMagnitude, remainder);
     }
 
     /**
@@ -399,24 +457,28 @@ public class UnboundedInteger {
      * @return Greatest Common Divisor
      */
     public UnboundedInteger gcd(UnboundedInteger other) {
+        // If the numbers are equal, they are their own GCD
         if (equals(other)) return this;
 
+        // Sort the numbers
         boolean thisGtOther = this.greaterThan(other);
-        UnboundedInteger lower = thisGtOther ? other : this;
-        if (lower.equals(ZERO)) return lower;
-        UnboundedInteger higher = thisGtOther ? this : other;
+        UnboundedInteger divisor = thisGtOther ? other : this;
+        if (divisor.equals(ZERO)) return divisor;
+        UnboundedInteger dividend = thisGtOther ? this : other;
 
         do {
-            QuotientAndRemainder qr = higher.divide(lower);
-            higher = lower;
-            lower = qr.getRemainder();
-        } while (!lower.equals(ZERO));
+            QuotientAndRemainder qr = dividend.divide(divisor);
+            dividend = divisor;
+            divisor = qr.getRemainder();
+        } while (!divisor.equals(ZERO));
 
-        return higher;
+        return dividend;
     }
 
     /**
      * Returns whether or not {@code this} is greater than {@code other}
+     * @param other Other UnboundedInteger
+     * @return Boolean
      */
     public boolean greaterThan(UnboundedInteger other) {
         if (sign > other.sign) return true;
@@ -424,16 +486,30 @@ public class UnboundedInteger {
         return compareMagnitude(other) > 0;
     }
 
+    /**
+     * Returns whether or not {@code this} is less than {@code other}
+     * @param other Other UnboundedInteger
+     * @return Boolean
+     */
     public boolean lessThan(UnboundedInteger other) {
         if (sign < other.sign) return true;
         if (sign > other.sign) return false;
         return compareMagnitude(other) < 0;
     }
 
+    /**
+     * Returns whether or not {@code this} is equal to {@code other}
+     * @param other Other UnboundedInteger
+     * @return Boolean
+     */
     public boolean equals(UnboundedInteger other) {
         return sign == other.sign && magnitude.equals(other.magnitude);
     }
 
+    /**
+     * Returns a string representation of the current UnboundedInteger
+     * @return String representation
+     */
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -446,6 +522,9 @@ public class UnboundedInteger {
         return stringBuilder.toString();
     }
 
+    /**
+     * Main method
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         // loops of scaned in input
@@ -501,7 +580,7 @@ public class UnboundedInteger {
                 case ">":
                     result = "" + num1.greaterThan(num2);
                     break;
-                // calls lessThank method and returns true or false
+                // calls lessThan method and returns true or false
                 case "<":
                     result = "" + num1.lessThan(num2);
                     break;
@@ -523,20 +602,34 @@ public class UnboundedInteger {
         scanner.close();
     }
 
-    // class to set separate variables for quotient and remainder
+    /**
+     * Container class for Quotient and Remainder
+     */
     private class QuotientAndRemainder {
         private UnboundedInteger quotient;
         private UnboundedInteger remainder;
-        // constructor to set the quotient and remainder of the divided result
+
+        /**
+         * @param quotient Quotient
+         * @param remainder Remainder
+         */
         public QuotientAndRemainder(UnboundedInteger quotient, UnboundedInteger remainder) {
             this.quotient = quotient;
             this.remainder = remainder;
         }
-        // method to get the quotient value
+
+        /**
+         * Returns the Quotient
+         * @return quotient component
+         */
         public UnboundedInteger getQuotient() {
             return quotient;
         }
-        // method to get the remainder value
+
+        /**
+         * Returns the Remainder
+         * @return remainder component
+         */
         public UnboundedInteger getRemainder() {
             return remainder;
         }
