@@ -451,6 +451,11 @@ public class UnboundedInteger {
         // loops of scaned in input
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
+            if (line.equals("")){
+                System.out.println(line);
+                System.out.println("# Syntax error");
+                continue;
+            }
             // if line starts with a # print line and continue to next line
             if(line.charAt(0) == '#') {
                 System.out.println(line);
