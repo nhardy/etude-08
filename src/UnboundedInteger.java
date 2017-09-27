@@ -530,6 +530,7 @@ public class UnboundedInteger {
         // loops of scaned in input
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
+            // check if the input is a blank line
             if (line.equals("")){
                 System.out.println(line);
                 System.out.println("# Syntax error");
