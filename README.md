@@ -9,5 +9,5 @@ See http://www.cs.otago.ac.nz/cosc326/PDF/8-Arithmetic.pdf for more details
 ```
 cd src
 javac UnboundedInteger.java
-java UnboundedInteger  < ../input.txt
+java UnboundedInteger < ../input.txt
 ```

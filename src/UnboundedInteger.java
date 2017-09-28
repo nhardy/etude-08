@@ -2,11 +2,13 @@
  * @author Kimberley Louw, Nathan Hardy
  */
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Scanner;
-import java.lang.Math;
 
 /**
  * UnboundedInteger class
@@ -526,78 +528,71 @@ public class UnboundedInteger {
      * Main method
      */
     public static void main(String[] args) {
+        // All input statements contain an operand, followed
+        // by an operator, followed by another operand
+        Pattern INPUT_FORMAT = Pattern.compile("^(-?\\d+) ([\\+\\-\\/\\*<>=]|gcd) (-?\\d+)$");
         Scanner scanner = new Scanner(System.in);
         // loops of scaned in input
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            // check if the input is a blank line
-            if (line.equals("")){
-                System.out.println(line);
+            System.out.println(line);
+
+            // If line is blank, or starts with a '#',
+            // continue to the next line of input
+            if (line.equals("") || line.charAt(0) == '#') continue;
+
+            Matcher matcher = INPUT_FORMAT.matcher(line);
+            if (!matcher.find()) {
                 System.out.println("# Syntax error");
                 continue;
             }
-            // if line starts with a # print line and continue to next line
-            if(line.charAt(0) == '#') {
-                System.out.println(line);
-                continue;
-            }
-            // separate line by white space
-            String[] numbers = line.split("\\s+");
-            // if more/less than 2 numbers and a operator then print syntax error
-            if(numbers.length != 3) {
-                System.out.println(line);
-                System.out.println("# Syntax error");
-                continue;
-            }
+
             // assign numbers to num1 and num2 and operator to operand
-            UnboundedInteger num1 = new UnboundedInteger(numbers[0]);
-            String operand = numbers[1];
-            UnboundedInteger num2 = new UnboundedInteger(numbers[2]);
+            UnboundedInteger num1 = new UnboundedInteger(matcher.group(1));
+            String operand = matcher.group(2);
+            UnboundedInteger num2 = new UnboundedInteger(matcher.group(3));
             String result = "";
-            // switch statement for each operator to call specific operator method
-            switch(operand) {
-                // calls add method to add the numbers
-                case "+":
-                    result = num1.add(num2).toString();
-                    break;
-                // calls subtract method to subtract the numbers
-                case "-":
-                    result = num1.subtract(num2).toString();
-                    break;
-                // calls multiply method to mulitply the numbers
-                case "*":
-                    result = num1.multiply(num2).toString();
-                    break;
-                // calls divide method to divide the numbers with remainder
-                case "/":
-                    QuotientAndRemainder tmp = num1.divide(num2);
-                    result = tmp.getQuotient() + " r " + tmp.getRemainder();
-                    break;
-                // calls gcd method to find the greatest common divisor
-                case "gcd":
-                    result = num1.gcd(num2).toString();
-                    break;
-                // calls greaterThan method and returns true or false
-                case ">":
-                    result = "" + num1.greaterThan(num2);
-                    break;
-                // calls lessThan method and returns true or false
-                case "<":
-                    result = "" + num1.lessThan(num2);
-                    break;
-                // calls equals method and returns true or false
-                case "=":
-                    result = "" + num1.equals(num2);
-                    break;
-                // if no operator given then print syntax error
-                default:
-                    System.out.println(line);
-                    System.out.println("# Syntax error");
-            }
-            // if result is found then print result with leading #
-            if (!result.equals("")) {
-                System.out.println(line);
+            try {
+                // switch statement for each operator to call specific operator method
+                switch (operand) {
+                    // calls add method to add the numbers
+                    case "+":
+                        result = num1.add(num2).toString();
+                        break;
+                    // calls subtract method to subtract the numbers
+                    case "-":
+                        result = num1.subtract(num2).toString();
+                        break;
+                    // calls multiply method to mulitply the numbers
+                    case "*":
+                        result = num1.multiply(num2).toString();
+                        break;
+                    // calls divide method to divide the numbers with remainder
+                    case "/":
+                        QuotientAndRemainder tmp = num1.divide(num2);
+                        result = tmp.getQuotient() + " r " + tmp.getRemainder();
+                        break;
+                    // calls gcd method to find the greatest common divisor
+                    case "gcd":
+                        result = num1.gcd(num2).toString();
+                        break;
+                    // calls greaterThan method and returns true or false
+                    case ">":
+                        result = "" + num1.greaterThan(num2);
+                        break;
+                    // calls lessThan method and returns true or false
+                    case "<":
+                        result = "" + num1.lessThan(num2);
+                        break;
+                    // calls equals method and returns true or false
+                    case "=":
+                        result = "" + num1.equals(num2);
+                        break;
+                }
                 System.out.println("# " + result);
+            } catch (ArithmeticException e) {
+                // Catches division by 0
+                System.out.println("# Syntax error");
             }
         }
         scanner.close();
