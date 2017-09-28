@@ -531,6 +531,7 @@ public class UnboundedInteger {
         // All input statements contain an operand, followed
         // by an operator, followed by another operand
         Pattern INPUT_FORMAT = Pattern.compile("^(-?\\d+) ([\\+\\-\\/\\*<>=]|gcd) (-?\\d+)$");
+
         Scanner scanner = new Scanner(System.in);
         // loops of scaned in input
         while (scanner.hasNextLine()) {
@@ -570,7 +571,7 @@ public class UnboundedInteger {
                     // calls divide method to divide the numbers with remainder
                     case "/":
                         QuotientAndRemainder tmp = num1.divide(num2);
-                        result = tmp.getQuotient() + " r " + tmp.getRemainder();
+                        result = tmp.getQuotient() + " " + tmp.getRemainder();
                         break;
                     // calls gcd method to find the greatest common divisor
                     case "gcd":
