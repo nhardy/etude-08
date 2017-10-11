@@ -4,10 +4,10 @@
 
 import java.lang.Math;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.Scanner;
 
 /**
@@ -26,7 +26,7 @@ public class UnboundedInteger {
     /**
      * List of magnitude components. Currently, these are single decimal digit integers.
      */
-    private List<Integer> magnitude = new LinkedList<Integer>();
+    private List<Integer> magnitude = new ArrayList<Integer>();
 
     /**
      * Creates an UnboundedInteger from a String representation
@@ -39,11 +39,13 @@ public class UnboundedInteger {
         int negIndex = number.lastIndexOf('-');
         sign = negIndex == 0 ? -1 : 1;
 
-        // If the first character after the negative sign (or
-        // the first character if there is none) is a zero,
-        // set the sign to 0 and let the magnitude consist of
-        // a single zero digit.
-        if (number.charAt(negIndex + 1) == '0') {
+        int cursor = negIndex + 1;
+
+        // Consume leading zeroes
+        while (cursor < number.length() - 1 && number.charAt(cursor) == '0') cursor++;
+
+        // Zero is a special case
+        if (number.charAt(cursor) == '0') {
             sign = 0;
             magnitude.add(0);
             return;
@@ -51,7 +53,7 @@ public class UnboundedInteger {
 
         // For each digit in the input, starting from least
         // significant, add that digit to the magnitude List
-        for (int i = number.length() - 1; i > negIndex; i--) {
+        for (int i = number.length() - 1; i >= cursor; i--) {
             magnitude.add(Integer.parseInt(number.substring(i, i + 1)));
         }
     }
@@ -130,7 +132,7 @@ public class UnboundedInteger {
      * @return List of magnitude components
      */
     private static List<Integer> add(List<Integer> magnitude1, List<Integer> magnitude2) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
+        List<Integer> newMagnitude = new ArrayList<Integer>();
         // The position indicates the digits being added
         int position = 0;
         // max equals the highest number of digits between the two numbers
@@ -179,7 +181,7 @@ public class UnboundedInteger {
         // if both signs are the same add the absolute values and return the original sign.
         if (sign == other.sign) return new UnboundedInteger(sign, add(magnitude, other.magnitude));
 
-        List<Integer> newMagnitude = new LinkedList<Integer>();
+        List<Integer> newMagnitude = new ArrayList<Integer>();
         // if the signs are different compare the absolute values
         // then subtract the smaller value from the larger value
         int cmp = compareMagnitude(other);
@@ -202,7 +204,7 @@ public class UnboundedInteger {
      * @return List of magnitude components
      */
     private static List<Integer> subtract(List<Integer> magnitude1, List<Integer> magnitude2) {
-        List<Integer> newMagnitude = new LinkedList<Integer>();
+        List<Integer> newMagnitude = new ArrayList<Integer>();
         // The position indicates the digits being subtracted
         int position = 0;
         // max equals the highest number of digits between the two numbers
@@ -274,7 +276,7 @@ public class UnboundedInteger {
         // if so add absolute values and return original sign
         if (sign != other.sign) return new UnboundedInteger(sign, add(magnitude, other.magnitude));
 
-        List<Integer> newMagnitude = new LinkedList<Integer>();
+        List<Integer> newMagnitude = new ArrayList<Integer>();
         // if the signs are the same compare the absolute values
         // then subtract the smaller value from the larger value
         int cmp = compareMagnitude(other);
@@ -330,11 +332,10 @@ public class UnboundedInteger {
         // We aren't allowed to access the underlying magnitude List
         // for this method, so we convert the number to a string and
         // operate on each digit accordingly.
-        char[] lesserDigitChars = lesser.toString().toCharArray();
-        ArrayList<Character> lesserDigits = new ArrayList<Character>();
-        for (int i = lesserDigitChars.length - 1; i >= 0; i--) {
-            lesserDigits.add(lesserDigitChars[i]);
-        }
+        List<Character> lesserDigits = lesser.toString()
+            .chars()
+            .mapToObj((int c) -> Character.toChars(c)[0])
+            .collect(Collectors.toList());
 
         // Multiply using shift and add
         for (int i = 0; i < lesserDigits.size(); i++) {
@@ -383,17 +384,19 @@ public class UnboundedInteger {
         // We aren't allowed to access the underlying magnitude List
         // for this method, so we convert the number to a string and
         // operate on each digit accordingly.
-        char[] dividendCharArray = absDividend.toString().toCharArray();
-        ArrayList<Character> dividendChars = new ArrayList<Character>();
-        for (int i = 0; i < dividendCharArray.length; i++) {
-            dividendChars.add(dividendCharArray[i]);
-        }
+        List<Character> dividendChars = absDividend.toString()
+            .chars()
+            .mapToObj((int c) -> Character.toChars(c)[0])
+            .collect(Collectors.toList());
 
         String quotientDigits = "";
         String remainderDigits = "";
 
         // Last successful division occurred at this position in the dividendChars list
         int successful = 0;
+
+        UnboundedInteger partialDividend = null;
+        boolean hasLeftover = false;
 
         // Keep advancing one digit at a time through the dividend
         for (int i = 0; i < dividendChars.size(); i++) {
@@ -409,12 +412,15 @@ public class UnboundedInteger {
                 partialDividendString += dividendChars.get(j);
             }
             // Turn the String into a new UnboundedInteger
-            UnboundedInteger partialDividend = new UnboundedInteger(partialDividendString);
+            partialDividend = new UnboundedInteger(partialDividendString);
             // Count the number of times our divisor fits into the partial dividend
             int count = 0;
 
+            hasLeftover = true;
+
             // While our divisor is less than or equal to the partial dividend
             while (absDivisor.lessThan(partialDividend) || absDivisor.equals(partialDividend)) {
+                hasLeftover = false;
                 // Advance the successful division marker one space from the current char of the divisor
                 successful = i + 1;
                 // Subtract the divisor from the partial dividend
@@ -437,6 +443,10 @@ public class UnboundedInteger {
                 // Add the digits to the quotient
                 quotientDigits += count;
             }
+        }
+
+        if (hasLeftover) {
+            remainderDigits += partialDividend;
         }
 
         // Convert the quotient string to an UnboundedInteger
